@@ -1,0 +1,368 @@
+
+{
+  "header": {
+    "welcome": "Welcome, Admin",
+    "welcomeUser": "Welcome, {name}"
+  },
+  "sidebar": {
+    "title": "SIGMA 4.0",
+    "dashboard": "Dashboard",
+    "equipment": "Equipment",
+    "serviceOrders": "Service Orders",
+    "aiAssistant": "AI Assistant",
+    "preventiveMaintenance": "Preventive Maint.",
+    "checklists": "Checklists",
+    "suppliers": "Suppliers",
+    "users": "Users",
+    "teamManagement": "Team",
+    "userManagement": "Management",
+    "chat": "Chat",
+    "qrScanner": "Scan QR Code"
+  },
+  "viewTitles": {
+    "dashboard": "Dashboard",
+    "equipment": "Equipment Management",
+    "serviceOrders": "Service Order Management",
+    "assistant": "AI Predictive Assistant",
+    "preventiveMaintenance": "Preventive Maintenance Calendar",
+    "checklists": "Checklist Templates",
+    "suppliers": "Supplier Management",
+    "users": "User Directory",
+    "team": "Team Management",
+    "userManagement": "User & Team Management",
+    "chat": "Team Chat"
+  },
+  "dashboard": {
+    "totalEquipment": "Total Equipment",
+    "activeServiceOrders": "Active Service Orders",
+    "needsRepair": "Needs Repair",
+    "equipmentStatus": "Equipment Status",
+    "upcomingServiceOrders": "Upcoming Service Orders",
+    "noOpenOrders": "No open service orders.",
+    "problematicEquipmentTitle": "Top 5 Problematic Equipment",
+    "correctiveOrders": "Corrective Orders",
+    "noProblematicEquipment": "No equipment data to display.",
+    "totalUsers": "Total Users",
+    "totalSuppliers": "Total Suppliers",
+    "totalChecklists": "Checklist Templates",
+    "totalRehabCost": "Completed Rehab Cost",
+    "equipmentByType": "Equipment by Type",
+    "serviceOrdersOverview": "Service Orders Overview"
+  },
+  "equipment": {
+    "title": "Equipment Master List",
+    "add": "Add Equipment",
+    "details": "Details",
+    "modalAddTitle": "Add New Equipment",
+    "modalEditTitle": "Edit Equipment",
+    "autoScheduled": "Automatically scheduled: {schedule}",
+    "noResults": "No equipment found for this category.",
+    "qrCode": "QR Code",
+    "modalQrTitle": "QR Code for {name}",
+    "print": "Print",
+    "tabs": {
+      "all": "All",
+      "machinery": "Machinery",
+      "tooling": "Tooling",
+      "automation": "Automation",
+      "general": "General Info",
+      "parts": "Replacement Parts",
+      "drawings": "Drawings & Files"
+    },
+    "drawings": {
+      "title": "Project Drawings & Files",
+      "add": "Add File",
+      "noFiles": "No project files have been added.",
+      "deleteConfirm": "Are you sure you want to delete this file?",
+      "fileSizeError": "File is too large. Please select a file under 5MB.",
+      "view": "View"
+    },
+    "form": {
+      "name": "Name",
+      "type": "Type",
+      "selectType": "Select a type...",
+      "automation": "Automation",
+      "location": "Location",
+      "installDate": "Install Date",
+      "usageHours": "Usage Hours",
+      "photoLabel": "Equipment Photo",
+      "changePhoto": "Upload",
+      "removePhoto": "Remove",
+      "preventiveSchedule": "Preventive Schedule",
+      "checklistTemplate": "Checklist Template",
+      "noChecklist": "No Checklist",
+      "model": "Model",
+      "manufacturer": "Manufacturer",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "headers": {
+      "photo": "Photo",
+      "id": "ID",
+      "name": "Name",
+      "type": "Type",
+      "status": "Status",
+      "usageHours": "Usage Hours",
+      "nextPreventiveDate": "Next Preventive",
+      "actions": "Actions",
+      "parts": "Parts"
+    },
+    "parts": {
+      "title": "Replacement Parts for {name}",
+      "add": "Add Part",
+      "edit": "Edit Part",
+      "noParts": "No replacement parts listed for this equipment.",
+      "deleteConfirm": "Are you sure you want to delete this part?",
+      "form": {
+        "name": "Part Name",
+        "code": "Part Code",
+        "stockQuantity": "Stock Quantity",
+        "supplier": "Supplier"
+      }
+    }
+  },
+  "serviceOrders": {
+    "title": "Service Orders",
+    "create": "Create Service Order",
+    "edit": "Edit",
+    "fillChecklist": "Fill Checklist",
+    "viewChecklist": "View Checklist",
+    "checklistModalTitle": "Preventive Checklist for {equipmentName}",
+    "detailsModalTitle": "Rehabilitation Details",
+    "modalAddTitle": "Create New Service Order",
+    "modalEditTitle": "Edit Service Order",
+    "form": {
+      "equipment": "Equipment",
+      "selectEquipment": "Select Equipment",
+      "maintenanceType": "Maintenance Type",
+      "status": "Status",
+      "description": "Description",
+      "assignedTeam": "Assigned Team",
+      "selectTeam": "Select a Team...",
+      "scheduledDate": "Scheduled Date",
+      "rehabilitationCost": "Rehabilitation Cost",
+      "photos": "Photos",
+      "addPhotos": "Add Photos",
+      "photoPreviews": "Photo Previews",
+      "cancel": "Cancel",
+      "save": "Save Order"
+    },
+    "headers": {
+      "orderId": "Order ID",
+      "equipment": "Equipment",
+      "type": "Type",
+      "status": "Status",
+      "assignedTeam": "Assigned Team",
+      "scheduledDate": "Scheduled Date",
+      "cost": "Cost",
+      "actions": "Actions"
+    },
+    "filters": {
+      "title": "Filters",
+      "status": "Filter by Status",
+      "type": "Filter by Type",
+      "all": "All",
+      "searchTermPlaceholder": "Search by equipment, team, or description...",
+      "startDate": "From Date",
+      "endDate": "To Date",
+      "clear": "Clear Filters",
+      "noResults": "No service orders match the current filters."
+    }
+  },
+  "checklists": {
+    "title": "Checklist Templates",
+    "add": "New Template",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete the template \"{name}\"? This action cannot be undone.",
+    "modalAddTitle": "Create New Checklist Template",
+    "modalEditTitle": "Edit Checklist Template",
+    "noTemplates": "No checklist templates created yet. Click 'New Template' to start.",
+    "form": {
+      "name": "Template Name",
+      "itemsTitle": "Checklist Items",
+      "addItem": "Add Item",
+      "itemText": "Item Description",
+      "itemType": "Response Type",
+      "cancel": "Cancel",
+      "save": "Save Template"
+    }
+  },
+  "checklistExecution": {
+      "ok": "OK",
+      "notOk": "Not OK",
+      "value": "Value",
+      "notes": "Notes",
+      "notesPlaceholder": "Add optional notes...",
+      "saveResults": "Save and Complete SO",
+      "executedBy": "Executed by",
+      "executionDate": "Execution Date"
+  },
+  "assistant": {
+    "title": "AI Predictive Maintenance Assistant",
+    "selectLabel": "Select Equipment for Analysis",
+    "languageLabel": "Analysis Language",
+    "selectPlaceholder": "-- Select Equipment --",
+    "analyzeButton": "Analyze",
+    "analyzingButton": "Analyzing...",
+    "errorSelect": "Please select a piece of equipment.",
+    "errorNotFound": "Selected equipment not found.",
+    "analysisFor": "Analysis for {equipmentName}",
+    "healthSummary": "Health Summary",
+    "recommendation": "Next Maintenance Recommendation",
+    "risks": "Potential Risks"
+  },
+  "preventive": {
+    "scheduledThisMonth": "Scheduled this month",
+    "completedThisMonth": "Completed this month",
+    "modalTitle": "Preventive Maintenance on {date}",
+    "noEvents": "No preventive maintenance scheduled for this day."
+  },
+  "suppliers": {
+    "title": "Supplier Management",
+    "add": "Add Supplier",
+    "edit": "Edit",
+    "deleteConfirm": "Are you sure you want to delete this supplier?",
+    "modalAddTitle": "Add New Supplier",
+    "modalEditTitle": "Edit Supplier",
+    "noSuppliers": "No suppliers found. Click 'Add Supplier' to get started.",
+    "headers": {
+      "name": "Supplier Name",
+      "contactPerson": "Contact Person",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "actions": "Actions"
+    },
+    "form": {
+      "name": "Supplier Name",
+      "contactPerson": "Contact Person",
+      "phone": "Phone Number",
+      "email": "Email Address",
+      "address": "Address"
+    }
+  },
+  "team": {
+    "title": "Manage Your Team",
+    "you": "You",
+    "createPrompt": "You don't have a team yet. Create one to start collaborating.",
+    "teamNameLabel": "Team Name",
+    "teamNamePlaceholder": "e.g., 'Maintenance Crew A'",
+    "createButton": "Create Team",
+    "membersTitle": "Team Members",
+    "addMemberPrompt": "Add a new member to your team by email. If they don't have an account, one will be created for them.",
+    "emailLabel": "Member's Email",
+    "addButton": "Add Member",
+    "addMemberModalTitle": "Add Member to Team",
+    "removeMemberConfirm": "Are you sure you want to remove this member from the team?",
+    "affiliatedWith": "You are affiliated with {teamName}",
+    "errorAlreadyInTeam": "User {email} is already in this team.",
+    "errorInAnotherTeam": "User {email} belongs to another team. Contact an admin to reassign."
+  },
+  "users": {
+    "title": "User Directory",
+    "headers": {
+      "name": "Name",
+      "email": "Email",
+      "team": "Team"
+    },
+    "noTeam": "No Team"
+  },
+  "userManagement": {
+    "title": "User and Team Administration",
+    "usersTitle": "All Users",
+    "teamsTitle": "Manage Teams",
+    "headers": {
+      "name": "Name",
+      "email": "Email",
+      "team": "Assigned Team",
+      "role": "Role",
+      "actions": "Actions"
+    },
+    "noTeam": "No Team",
+    "createTeamPrompt": "Create a new team",
+    "teamNameLabel": "New Team Name",
+    "createButton": "Create",
+    "existingTeams": "Existing Teams:",
+    "addUser": "Add User",
+    "editUser": "Edit User",
+    "deleteUser": "Delete User",
+    "deleteUserConfirm": "Are you sure you want to delete the user {userName}? This action cannot be undone.",
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "passwordHelp": "Leave blank to keep the current password.",
+      "role": "Role",
+      "team": "Team",
+      "permissions": "Permissions",
+      "cancel": "Cancel",
+      "save": "Save User"
+    }
+  },
+  "chat": {
+    "placeholder": "Type your message...",
+    "send": "Send",
+    "noTeam": "You must be part of a team to use the chat.",
+    "noMessages": "No messages yet. Start the conversation!"
+  },
+  "auth": {
+    "loginTitle": "Access your account",
+    "registerTitle": "Create a new account",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "nameLabel": "Full Name",
+    "loginButton": "Login",
+    "registerButton": "Create Account",
+    "toggleToRegister": "Don't have an account? Sign up",
+    "toggleToLogin": "Already have an account? Login",
+    "registrationSuccess": "Registration successful! Please log in.",
+    "logout": "Logout"
+  },
+  "scanner": {
+    "title": "Scan QR Code",
+    "description": "Point your camera at a QR code to scan it.",
+    "error": {
+      "invalid": "Invalid QR Code format. Please scan a valid SIGMA 4.0 equipment code.",
+      "notFound": "Scanned equipment not found in the database.",
+      "camera": "Could not access camera. Please grant permission in your browser settings."
+    }
+  },
+  "enums": {
+    "equipmentStatus": {
+      "Operational": "Operational",
+      "In Maintenance": "In Maintenance",
+      "Needs Repair": "Needs Repair",
+      "Decommissioned": "Decommissioned"
+    },
+    "maintenanceType": {
+      "Corrective": "Corrective",
+      "Preventive": "Preventive",
+      "Predictive": "Predictive",
+      "Rehabilitation": "Rehabilitation"
+    },
+    "serviceOrderStatus": {
+      "Open": "Open",
+      "In Progress": "In Progress",
+      "Completed": "Completed",
+      "Cancelled": "Cancelled"
+    },
+    "userRole": {
+      "Admin": "Administrator",
+      "Manager": "Manager",
+      "Technician": "Technician"
+    },
+    "preventiveMaintenanceSchedule": {
+      "None": "None",
+      "Monthly": "Monthly",
+      "Bimonthly": "Bimonthly (2 months)",
+      "Trimonthly": "Trimonthly (3 months)",
+      "Semiannual": "Semiannual (6 months)",
+      "Annual": "Annual"
+    },
+    "checklistItemType": {
+        "OK_NOT_OK": "OK / Not OK",
+        "NUMERIC": "Numeric Value"
+    }
+  }
+}

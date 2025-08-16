@@ -1,0 +1,368 @@
+
+{
+  "header": {
+    "welcome": "Bem-vindo, Admin",
+    "welcomeUser": "Bem-vindo(a), {name}"
+  },
+  "sidebar": {
+    "title": "SIGMA 4.0",
+    "dashboard": "Painel",
+    "equipment": "Equipamentos",
+    "serviceOrders": "Ordens de Serviço",
+    "aiAssistant": "Assistente IA",
+    "preventiveMaintenance": "Manut. Preventiva",
+    "checklists": "Checklists",
+    "suppliers": "Fornecedores",
+    "users": "Usuários",
+    "teamManagement": "Equipe",
+    "userManagement": "Gestão",
+    "chat": "Bate-papo",
+    "qrScanner": "Escanear QR Code"
+  },
+  "viewTitles": {
+    "dashboard": "Painel",
+    "equipment": "Gerenciamento de Equipamentos",
+    "serviceOrders": "Gerenciamento de Ordens de Serviço",
+    "assistant": "Assistente Preditivo IA",
+    "preventiveMaintenance": "Calendário de Manutenção Preventiva",
+    "checklists": "Modelos de Checklist",
+    "suppliers": "Gestão de Fornecedores",
+    "users": "Diretório de Usuários",
+    "team": "Gerenciamento de Equipe",
+    "userManagement": "Gestão de Usuários e Equipes",
+    "chat": "Bate-papo da Equipe"
+  },
+  "dashboard": {
+    "totalEquipment": "Total de Equipamentos",
+    "activeServiceOrders": "Ordens de Serviço Ativas",
+    "needsRepair": "Requer Reparo",
+    "equipmentStatus": "Status dos Equipamentos",
+    "upcomingServiceOrders": "Próximas Ordens de Serviço",
+    "noOpenOrders": "Nenhuma ordem de serviço aberta.",
+    "problematicEquipmentTitle": "Top 5 Equipamentos Problemáticos",
+    "correctiveOrders": "Ordens Corretivas",
+    "noProblematicEquipment": "Nenhum dado de equipamento para exibir.",
+    "totalUsers": "Total de Usuários",
+    "totalSuppliers": "Total de Fornecedores",
+    "totalChecklists": "Modelos de Checklist",
+    "totalRehabCost": "Custo de Reabilitação Concluída",
+    "equipmentByType": "Equipamentos por Tipo",
+    "serviceOrdersOverview": "Visão Geral das Ordens de Serviço"
+  },
+  "equipment": {
+    "title": "Lista Mestra de Equipamentos",
+    "add": "Adicionar Equipamento",
+    "details": "Detalhes",
+    "modalAddTitle": "Adicionar Novo Equipamento",
+    "modalEditTitle": "Editar Equipamento",
+    "autoScheduled": "Agendado automaticamente: {schedule}",
+    "noResults": "Nenhum equipamento encontrado para esta categoria.",
+    "qrCode": "QR Code",
+    "modalQrTitle": "QR Code para {name}",
+    "print": "Imprimir",
+    "tabs": {
+      "all": "Todos",
+      "machinery": "Máquinas",
+      "tooling": "Ferramentas",
+      "automation": "Automação",
+      "general": "Informações Gerais",
+      "parts": "Peças de Reposição",
+      "drawings": "Desenhos e Arquivos"
+    },
+    "drawings": {
+      "title": "Desenhos e Arquivos do Projeto",
+      "add": "Adicionar Arquivo",
+      "noFiles": "Nenhum arquivo de projeto foi adicionado.",
+      "deleteConfirm": "Tem certeza que deseja excluir este arquivo?",
+      "fileSizeError": "O arquivo é muito grande. Selecione um arquivo com menos de 5MB.",
+      "view": "Visualizar"
+    },
+    "form": {
+      "name": "Nome",
+      "type": "Tipo",
+      "selectType": "Selecione um tipo...",
+      "automation": "Automação",
+      "location": "Localização",
+      "installDate": "Data de Instalação",
+      "usageHours": "Horas de Uso",
+      "photoLabel": "Foto do Equipamento",
+      "changePhoto": "Carregar",
+      "removePhoto": "Remover",
+      "preventiveSchedule": "Plano Preventivo",
+      "checklistTemplate": "Modelo de Checklist",
+      "noChecklist": "Nenhum Checklist",
+      "model": "Modelo",
+      "manufacturer": "Fabricante",
+      "cancel": "Cancelar",
+      "save": "Salvar"
+    },
+    "headers": {
+      "photo": "Foto",
+      "id": "ID",
+      "name": "Nome",
+      "type": "Tipo",
+      "status": "Status",
+      "usageHours": "Horas de Uso",
+      "nextPreventiveDate": "Próxima Preventiva",
+      "actions": "Ações",
+      "parts": "Peças"
+    },
+    "parts": {
+      "title": "Peças de Reposição para {name}",
+      "add": "Adicionar Peça",
+      "edit": "Editar Peça",
+      "noParts": "Nenhuma peça de reposição listada para este equipamento.",
+      "deleteConfirm": "Tem certeza de que deseja excluir esta peça?",
+      "form": {
+        "name": "Nome da Peça",
+        "code": "Código da Peça",
+        "stockQuantity": "Quantidade em Estoque",
+        "supplier": "Fornecedor"
+      }
+    }
+  },
+  "serviceOrders": {
+    "title": "Ordens de Serviço",
+    "create": "Criar Ordem de Serviço",
+    "edit": "Editar",
+    "fillChecklist": "Preencher Checklist",
+    "viewChecklist": "Ver Checklist",
+    "checklistModalTitle": "Checklist Preventivo para {equipmentName}",
+    "detailsModalTitle": "Detalhes da Reabilitação",
+    "modalAddTitle": "Criar Nova Ordem de Serviço",
+    "modalEditTitle": "Editar Ordem de Serviço",
+    "form": {
+      "equipment": "Equipamento",
+      "selectEquipment": "Selecione o Equipamento",
+      "maintenanceType": "Tipo de Manutenção",
+      "status": "Status",
+      "description": "Descrição",
+      "assignedTeam": "Equipe Responsável",
+      "selectTeam": "Selecione uma Equipe...",
+      "scheduledDate": "Data Agendada",
+      "rehabilitationCost": "Custo da Reabilitação",
+      "photos": "Fotos",
+      "addPhotos": "Adicionar Fotos",
+      "photoPreviews": "Pré-visualização de Fotos",
+      "cancel": "Cancelar",
+      "save": "Salvar Ordem"
+    },
+    "headers": {
+      "orderId": "ID da Ordem",
+      "equipment": "Equipamento",
+      "type": "Tipo",
+      "status": "Status",
+      "assignedTeam": "Equipe",
+      "scheduledDate": "Data Agendada",
+      "cost": "Custo",
+      "actions": "Ações"
+    },
+    "filters": {
+      "title": "Filtros",
+      "status": "Filtrar por Status",
+      "type": "Filtrar por Tipo",
+      "all": "Todos",
+      "searchTermPlaceholder": "Buscar por equipamento, equipe ou descrição...",
+      "startDate": "Data Inicial",
+      "endDate": "Data Final",
+      "clear": "Limpar Filtros",
+      "noResults": "Nenhuma ordem de serviço corresponde aos filtros atuais."
+    }
+  },
+   "checklists": {
+    "title": "Modelos de Checklist",
+    "add": "Novo Modelo",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "deleteConfirm": "Tem certeza que deseja excluir o modelo \"{name}\"? Esta ação não pode ser desfeita.",
+    "modalAddTitle": "Criar Novo Modelo de Checklist",
+    "modalEditTitle": "Editar Modelo de Checklist",
+    "noTemplates": "Nenhum modelo de checklist criado. Clique em 'Novo Modelo' para começar.",
+    "form": {
+      "name": "Nome do Modelo",
+      "itemsTitle": "Itens do Checklist",
+      "addItem": "Adicionar Item",
+      "itemText": "Descrição do Item",
+      "itemType": "Tipo de Resposta",
+      "cancel": "Cancelar",
+      "save": "Salvar Modelo"
+    }
+  },
+  "checklistExecution": {
+      "ok": "OK",
+      "notOk": "Não OK",
+      "value": "Valor",
+      "notes": "Observações",
+      "notesPlaceholder": "Adicione observações (opcional)...",
+      "saveResults": "Salvar e Concluir OS",
+      "executedBy": "Executado por",
+      "executionDate": "Data da Execução"
+  },
+  "assistant": {
+    "title": "Assistente IA de Manutenção Preditiva",
+    "selectLabel": "Selecione o Equipamento para Análise",
+    "languageLabel": "Idioma da Análise",
+    "selectPlaceholder": "-- Selecione o Equipamento --",
+    "analyzeButton": "Analisar",
+    "analyzingButton": "Analisando...",
+    "errorSelect": "Por favor, selecione um equipamento.",
+    "errorNotFound": "Equipamento selecionado não encontrado.",
+    "analysisFor": "Análise para {equipmentName}",
+    "healthSummary": "Resumo da Saúde",
+    "recommendation": "Recomendação para Próxima Manutenção",
+    "risks": "Riscos Potenciais"
+  },
+  "preventive": {
+    "scheduledThisMonth": "Agendadas este mês",
+    "completedThisMonth": "Concluídas este mês",
+    "modalTitle": "Manutenção Preventiva em {date}",
+    "noEvents": "Nenhuma manutenção preventiva agendada para este dia."
+  },
+  "suppliers": {
+    "title": "Gestão de Fornecedores",
+    "add": "Adicionar Fornecedor",
+    "edit": "Editar",
+    "deleteConfirm": "Tem certeza de que deseja excluir este fornecedor?",
+    "modalAddTitle": "Adicionar Novo Fornecedor",
+    "modalEditTitle": "Editar Fornecedor",
+    "noSuppliers": "Nenhum fornecedor encontrado. Clique em 'Adicionar Fornecedor' para começar.",
+    "headers": {
+      "name": "Nome do Fornecedor",
+      "contactPerson": "Pessoa de Contato",
+      "phone": "Telefone",
+      "email": "Email",
+      "address": "Endereço",
+      "actions": "Ações"
+    },
+    "form": {
+      "name": "Nome do Fornecedor",
+      "contactPerson": "Pessoa de Contato",
+      "phone": "Número de Telefone",
+      "email": "Endereço de Email",
+      "address": "Endereço"
+    }
+  },
+  "team": {
+    "title": "Gerencie sua Equipe",
+    "you": "Você",
+    "createPrompt": "Você ainda não tem uma equipe. Crie uma para começar a colaborar.",
+    "teamNameLabel": "Nome da Equipe",
+    "teamNamePlaceholder": "Ex: 'Equipe de Manutenção A'",
+    "createButton": "Criar Equipe",
+    "membersTitle": "Membros da Equipe",
+    "addMemberPrompt": "Adicione um novo membro à sua equipe por e-mail. Se ele não tiver uma conta, uma será criada.",
+    "emailLabel": "E-mail do Membro",
+    "addButton": "Adicionar Membro",
+    "addMemberModalTitle": "Adicionar Membro à Equipe",
+    "removeMemberConfirm": "Tem certeza de que deseja remover este membro da equipe?",
+    "affiliatedWith": "Você é afiliado à equipe {teamName}",
+    "errorAlreadyInTeam": "O usuário {email} já está nesta equipe.",
+    "errorInAnotherTeam": "O usuário {email} pertence a outra equipe. Contate um administrador para reatribuí-lo."
+  },
+  "users": {
+    "title": "Diretório de Usuários",
+    "headers": {
+      "name": "Nome",
+      "email": "Email",
+      "team": "Equipe"
+    },
+    "noTeam": "Sem Equipe"
+  },
+  "userManagement": {
+    "title": "Administração de Usuários e Equipes",
+    "usersTitle": "Todos os Usuários",
+    "teamsTitle": "Gerenciar Equipes",
+    "headers": {
+      "name": "Nome",
+      "email": "Email",
+      "team": "Equipe Designada",
+      "role": "Função",
+      "actions": "Ações"
+    },
+    "noTeam": "Sem Equipe",
+    "createTeamPrompt": "Criar uma nova equipe",
+    "teamNameLabel": "Nome da Nova Equipe",
+    "createButton": "Criar",
+    "existingTeams": "Equipes Existentes:",
+    "addUser": "Adicionar Usuário",
+    "editUser": "Editar Usuário",
+    "deleteUser": "Excluir Usuário",
+    "deleteUserConfirm": "Tem certeza que deseja excluir o usuário {userName}? Esta ação não pode ser desfeita.",
+    "form": {
+      "name": "Nome Completo",
+      "email": "Endereço de Email",
+      "password": "Senha",
+      "passwordHelp": "Deixe em branco para manter a senha atual.",
+      "role": "Função",
+      "team": "Equipe",
+      "permissions": "Permissões",
+      "cancel": "Cancelar",
+      "save": "Salvar Usuário"
+    }
+  },
+  "chat": {
+    "placeholder": "Digite sua mensagem...",
+    "send": "Enviar",
+    "noTeam": "Você deve fazer parte de uma equipe para usar o bate-papo.",
+    "noMessages": "Ainda não há mensagens. Inicie a conversa!"
+  },
+  "auth": {
+    "loginTitle": "Acesse sua conta",
+    "registerTitle": "Crie uma nova conta",
+    "emailLabel": "Endereço de E-mail",
+    "passwordLabel": "Senha",
+    "nameLabel": "Nome Completo",
+    "loginButton": "Entrar",
+    "registerButton": "Criar Conta",
+    "toggleToRegister": "Não tem uma conta? Cadastre-se",
+    "toggleToLogin": "Já tem uma conta? Entre",
+    "registrationSuccess": "Cadastro realizado com sucesso! Por favor, faça o login.",
+    "logout": "Sair"
+  },
+  "scanner": {
+    "title": "Escanear QR Code",
+    "description": "Aponte sua câmera para um QR code para escaneá-lo.",
+    "error": {
+      "invalid": "Formato de QR Code inválido. Por favor, escaneie um código de equipamento SIGMA 4.0 válido.",
+      "notFound": "Equipamento escaneado não encontrado na base de dados.",
+      "camera": "Não foi possível acessar a câmera. Por favor, conceda permissão nas configurações do seu navegador."
+    }
+  },
+  "enums": {
+    "equipmentStatus": {
+      "Operational": "Operacional",
+      "In Maintenance": "Em Manutenção",
+      "Needs Repair": "Requer Reparo",
+      "Decommissioned": "Descomissionado"
+    },
+    "maintenanceType": {
+      "Corrective": "Corretiva",
+      "Preventive": "Preventiva",
+      "Predictive": "Preditiva",
+      "Rehabilitation": "Reabilitação"
+    },
+    "serviceOrderStatus": {
+      "Open": "Aberta",
+      "In Progress": "Em Progresso",
+      "Completed": "Concluída",
+      "Cancelled": "Cancelada"
+    },
+    "userRole": {
+      "Admin": "Administrador",
+      "Manager": "Gerente",
+      "Technician": "Técnico"
+    },
+    "preventiveMaintenanceSchedule": {
+      "None": "Nenhum",
+      "Monthly": "Mensal",
+      "Bimonthly": "Bimestral (2 meses)",
+      "Trimonthly": "Trimestral (3 meses)",
+      "Semiannual": "Semestral (6 meses)",
+      "Annual": "Anual"
+    },
+    "checklistItemType": {
+        "OK_NOT_OK": "OK / Não OK",
+        "NUMERIC": "Valor Numérico"
+    }
+  }
+}
