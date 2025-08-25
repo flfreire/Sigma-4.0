@@ -12,7 +12,7 @@
     "aiAssistant": "Assistente IA",
     "preventiveMaintenance": "Manut. Preventiva",
     "checklists": "Checklists",
-    "suppliers": "Fornecedores",
+    "partners": "Parceiros",
     "users": "Usuários",
     "teamManagement": "Equipe",
     "userManagement": "Gestão",
@@ -26,7 +26,7 @@
     "assistant": "Assistente Preditivo IA",
     "preventiveMaintenance": "Calendário de Manutenção Preventiva",
     "checklists": "Modelos de Checklist",
-    "suppliers": "Gestão de Fornecedores",
+    "partners": "Gestão de Parceiros",
     "users": "Diretório de Usuários",
     "team": "Gerenciamento de Equipe",
     "userManagement": "Gestão de Usuários e Equipes",
@@ -43,11 +43,15 @@
     "correctiveOrders": "Ordens Corretivas",
     "noProblematicEquipment": "Nenhum dado de equipamento para exibir.",
     "totalUsers": "Total de Usuários",
-    "totalSuppliers": "Total de Fornecedores",
+    "totalPartners": "Total de Parceiros",
     "totalChecklists": "Modelos de Checklist",
     "totalRehabCost": "Custo de Reabilitação Concluída",
     "equipmentByType": "Equipamentos por Tipo",
-    "serviceOrdersOverview": "Visão Geral das Ordens de Serviço"
+    "serviceOrdersOverview": "Visão Geral das Ordens de Serviço",
+    "filterTitle": "Filtros de Dados",
+    "allMonths": "Todo o Período",
+    "completed": "Concluídas",
+    "pending": "Pendentes"
   },
   "equipment": {
     "title": "Lista Mestra de Equipamentos",
@@ -218,16 +222,17 @@
     "modalTitle": "Manutenção Preventiva em {date}",
     "noEvents": "Nenhuma manutenção preventiva agendada para este dia."
   },
-  "suppliers": {
-    "title": "Gestão de Fornecedores",
-    "add": "Adicionar Fornecedor",
+  "partners": {
+    "title": "Gestão de Parceiros",
+    "add": "Adicionar Parceiro",
     "edit": "Editar",
-    "deleteConfirm": "Tem certeza de que deseja excluir este fornecedor?",
-    "modalAddTitle": "Adicionar Novo Fornecedor",
-    "modalEditTitle": "Editar Fornecedor",
-    "noSuppliers": "Nenhum fornecedor encontrado. Clique em 'Adicionar Fornecedor' para começar.",
+    "deleteConfirm": "Tem certeza que deseja excluir este parceiro?",
+    "modalAddTitle": "Adicionar Novo Parceiro",
+    "modalEditTitle": "Editar Parceiro",
+    "noPartners": "Nenhum parceiro encontrado. Clique em 'Adicionar Parceiro' para começar.",
     "headers": {
-      "name": "Nome do Fornecedor",
+      "name": "Nome",
+      "type": "Tipo",
       "contactPerson": "Pessoa de Contato",
       "phone": "Telefone",
       "email": "Email",
@@ -235,11 +240,13 @@
       "actions": "Ações"
     },
     "form": {
-      "name": "Nome do Fornecedor",
+      "name": "Nome do Parceiro",
+      "type": "Tipo de Parceiro",
       "contactPerson": "Pessoa de Contato",
       "phone": "Número de Telefone",
       "email": "Endereço de Email",
-      "address": "Endereço"
+      "address": "Endereço",
+      "validateAddress": "Validar Endereço (abre Google Maps)"
     }
   },
   "team": {
@@ -363,6 +370,10 @@
     "checklistItemType": {
         "OK_NOT_OK": "OK / Não OK",
         "NUMERIC": "Valor Numérico"
+    },
+    "partnerType": {
+      "Supplier": "Fornecedor",
+      "ServiceProvider": "Prestador de Serviço"
     }
   }
 }

@@ -1,4 +1,5 @@
 
+
 export enum EquipmentStatus {
   Operational = 'Operational',
   InMaintenance = 'In Maintenance',
@@ -38,6 +39,11 @@ export enum PreventiveMaintenanceSchedule {
 export enum ChecklistItemType {
   OK_NOT_OK = 'OK_NOT_OK',
   NUMERIC = 'NUMERIC',
+}
+
+export enum PartnerType {
+  Supplier = 'Supplier',
+  ServiceProvider = 'Service Provider',
 }
 
 export interface MaintenanceLog {
@@ -130,7 +136,7 @@ export interface PredictiveAnalysis {
   potentialRisks: string[];
 }
 
-export type View = 'dashboard' | 'equipment' | 'service-orders' | 'assistant' | 'preventive-maintenance' | 'chat' | 'user-management' | 'users' | 'suppliers' | 'checklists';
+export type View = 'dashboard' | 'equipment' | 'service-orders' | 'assistant' | 'preventive-maintenance' | 'chat' | 'user-management' | 'users' | 'partners' | 'checklists';
 
 export interface User {
   id: string;
@@ -158,9 +164,10 @@ export interface ChatMessage {
   timestamp: number;
 }
 
-export interface Supplier {
+export interface Partner {
   id: string;
   name: string;
+  type: PartnerType;
   contactPerson: string;
   phone: string;
   email: string;

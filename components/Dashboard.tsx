@@ -1,10 +1,11 @@
 
-import React, { useMemo } from 'react';
+
+import React, { useMemo, useState } from 'react';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts';
-import { Equipment, ServiceOrder, EquipmentStatus, ServiceOrderStatus, MaintenanceType, User, Supplier, ChecklistTemplate } from '../types';
+import { Equipment, ServiceOrder, EquipmentStatus, ServiceOrderStatus, MaintenanceType, User, Partner, ChecklistTemplate } from '../types';
 import Card from './Card';
 import { WrenchScrewdriverIcon, ClipboardListIcon, UsersIcon, TruckIcon, ClipboardDocumentCheckIcon } from './icons';
 import { useTranslation } from '../i18n/config';
@@ -13,7 +14,7 @@ interface DashboardProps {
   equipment: Equipment[];
   serviceOrders: ServiceOrder[];
   users: User[];
-  suppliers: Supplier[];
+  partners: Partner[];
   checklistTemplates: ChecklistTemplate[];
 }
 
@@ -31,30 +32,44 @@ const typeColors: { [key: string]: string } = {
     Unknown: '#6B7280', // gray-500
 };
 
-const maintenanceTypeColors: { [key in MaintenanceType]: string } = {
-    [MaintenanceType.Preventive]: '#3b82f6',
-    [MaintenanceType.Corrective]: '#ef4444',
-    [MaintenanceType.Predictive]: '#facc15',
-    [MaintenanceType.Rehabilitation]: '#a855f7',
-};
-
-const Dashboard: React.FC<DashboardProps> = ({ equipment, serviceOrders, users, suppliers, checklistTemplates }) => {
+const Dashboard: React.FC<DashboardProps> = ({ equipment, serviceOrders, users, partners, checklistTemplates }) => {
   const { t, language } = useTranslation();
+  const [filterDate, setFilterDate] = useState<string>(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
+  const [showAll, setShowAll] = useState<boolean>(true);
 
   const totalEquipment = equipment.length;
   const totalUsers = users.length;
-  const totalSuppliers = suppliers.length;
+  const totalPartners = partners.length;
   const totalChecklists = checklistTemplates.length;
+  
+  const filteredServiceOrders = useMemo(() => {
+    if (showAll) {
+      return serviceOrders;
+    }
+    if (!filterDate) {
+      return serviceOrders;
+    }
+    const [year, month] = filterDate.split('-').map(Number);
+    
+    return serviceOrders.filter(order => {
+      const orderDate = new Date(order.scheduledDate + 'T00:00:00');
+      return orderDate.getFullYear() === year && orderDate.getMonth() === month - 1;
+    });
+  }, [serviceOrders, filterDate, showAll]);
 
-  const activeServiceOrders = serviceOrders.filter(
+
+  const activeServiceOrders = filteredServiceOrders.filter(
     order => order.status === ServiceOrderStatus.Open || order.status === ServiceOrderStatus.InProgress
   ).length;
 
   const totalRehabCost = useMemo(() => {
-    return serviceOrders
+    return filteredServiceOrders
       .filter(o => o.type === MaintenanceType.Rehabilitation && o.status === ServiceOrderStatus.Completed && o.rehabilitationCost)
       .reduce((sum, o) => sum + (o.rehabilitationCost || 0), 0);
-  }, [serviceOrders]);
+  }, [filteredServiceOrders]);
 
   const equipmentStatusData = useMemo(() => Object.values(EquipmentStatus).map(status => ({
     name: t(`enums.equipmentStatus.${status}`),
@@ -83,18 +98,41 @@ const Dashboard: React.FC<DashboardProps> = ({ equipment, serviceOrders, users, 
   }, [equipment, t]);
   
   const serviceOrdersByTypeData = useMemo(() => {
-    return Object.values(MaintenanceType).map(type => ({
-      name: t(`enums.maintenanceType.${type}`),
-      count: serviceOrders.filter(so => so.type === type).length,
-      key: type,
-    }));
-  }, [serviceOrders, t]);
+    return Object.values(MaintenanceType).map(type => {
+      const ordersOfType = filteredServiceOrders.filter(so => so.type === type);
+      const completed = ordersOfType.filter(so => so.status === ServiceOrderStatus.Completed).length;
+      const pending = ordersOfType.length - completed;
+      return {
+        name: t(`enums.maintenanceType.${type}`),
+        completed: completed,
+        pending: pending,
+        key: type,
+      };
+    });
+  }, [filteredServiceOrders, t]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
+      // If label is present, it's a BarChart.
+      if (label) {
+        return (
+          <div className="bg-secondary p-3 border border-accent rounded-md shadow-lg">
+            <p className="label text-light font-bold mb-2">{label}</p>
+            {payload.map((pld: any) => (
+               <p key={pld.dataKey} style={{ color: pld.fill }}>
+                  {`${pld.name}: ${pld.value}`}
+               </p>
+            )).reverse()}
+            <p className="text-highlight mt-1 pt-1 border-t border-accent/50 text-sm">
+               Total: {payload.reduce((sum: number, pld: any) => sum + pld.value, 0)}
+            </p>
+          </div>
+        );
+      }
+      // Otherwise, it's a PieChart.
       return (
         <div className="bg-secondary p-3 border border-accent rounded-md shadow-lg">
-          <p className="label text-light">{`${label} : ${payload[0].value}`}</p>
+          <p className="label text-light">{`${payload[0].name} : ${payload[0].value}`}</p>
         </div>
       );
     }
@@ -110,11 +148,33 @@ const Dashboard: React.FC<DashboardProps> = ({ equipment, serviceOrders, users, 
 
   return (
     <div className="p-6 space-y-6">
+      <div className="bg-secondary p-4 rounded-lg shadow-md border border-accent flex items-center justify-between flex-wrap gap-4">
+        <h3 className="text-lg font-bold text-light">{t('dashboard.filterTitle')}</h3>
+        <div className="flex items-center gap-4">
+            <input
+                type="month"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                disabled={showAll}
+                className="bg-primary border border-accent rounded-md p-2 text-light focus:ring-brand focus:border-brand disabled:opacity-50"
+            />
+            <label className="flex items-center space-x-2 text-light cursor-pointer">
+                <input
+                    type="checkbox"
+                    checked={showAll}
+                    onChange={(e) => setShowAll(e.target.checked)}
+                    className="rounded bg-primary border-accent text-brand focus:ring-brand"
+                />
+                <span>{t('dashboard.allMonths')}</span>
+            </label>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card title={t('dashboard.totalEquipment')} value={totalEquipment} icon={<WrenchScrewdriverIcon className="h-8 w-8" />} />
         <Card title={t('dashboard.activeServiceOrders')} value={activeServiceOrders} icon={<ClipboardListIcon className="h-8 w-8" />} colorClass="text-blue-400" />
         <Card title={t('dashboard.totalUsers')} value={totalUsers} icon={<UsersIcon className="h-8 w-8" />} colorClass="text-teal-400" />
-        <Card title={t('dashboard.totalSuppliers')} value={totalSuppliers} icon={<TruckIcon className="h-8 w-8" />} colorClass="text-orange-400" />
+        <Card title={t('dashboard.totalPartners')} value={totalPartners} icon={<TruckIcon className="h-8 w-8" />} colorClass="text-orange-400" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -194,11 +254,9 @@ const Dashboard: React.FC<DashboardProps> = ({ equipment, serviceOrders, users, 
                         cursor={{fill: 'rgba(119, 141, 169, 0.2)'}}
                         content={<CustomTooltip />}
                     />
-                    <Bar dataKey="count" barSize={50}>
-                        {serviceOrdersByTypeData.map((entry) => (
-                            <Cell key={`cell-${entry.key}`} fill={maintenanceTypeColors[entry.key]}/>
-                        ))}
-                    </Bar>
+                    <Legend />
+                    <Bar dataKey="pending" stackId="a" fill="#FBBF24" name={t('dashboard.pending')} />
+                    <Bar dataKey="completed" stackId="a" fill="#22C55E" name={t('dashboard.completed')} />
                 </BarChart>
             </ResponsiveContainer>
         </div>

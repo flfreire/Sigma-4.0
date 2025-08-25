@@ -1,7 +1,8 @@
 
+
 import { UserRole, View } from '../types';
 
-export const ALL_VIEWS: View[] = ['dashboard', 'equipment', 'service-orders', 'assistant', 'preventive-maintenance', 'chat', 'user-management', 'users', 'suppliers', 'checklists'];
+export const ALL_VIEWS: View[] = ['dashboard', 'equipment', 'service-orders', 'assistant', 'preventive-maintenance', 'chat', 'user-management', 'users', 'partners', 'checklists'];
 
 export const DEFAULT_PERMISSIONS: Record<UserRole, View[]> = {
   [UserRole.Admin]: ALL_VIEWS,
@@ -14,7 +15,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, View[]> = {
     'chat',
     'user-management', // For managing their own team
     'users',
-    'suppliers',
+    'partners',
     'checklists',
   ],
   [UserRole.Technician]: [
@@ -26,7 +27,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, View[]> = {
     'chat',
     'users',
     'user-management', // Allow technicians to create/view their team
-    'suppliers',
+    'partners',
     'checklists',
   ],
 };

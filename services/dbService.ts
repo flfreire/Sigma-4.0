@@ -1,15 +1,16 @@
 
-import { Equipment, ServiceOrder, User, Team, ChatMessage, ReplacementPart, Supplier, ChecklistTemplate, ChecklistExecution } from '../types';
+
+import { Equipment, ServiceOrder, User, Team, ChatMessage, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution } from '../types';
 
 const DB_NAME = 'Sigma4DB';
-const DB_VERSION = 6; // Incremented version for schema change
+const DB_VERSION = 7; // Incremented version for schema change
 const EQUIPMENT_STORE = 'equipment';
 const ORDERS_STORE = 'serviceOrders';
 const USERS_STORE = 'users';
 const TEAMS_STORE = 'teams';
 const CHAT_MESSAGES_STORE = 'chatMessages';
 const REPLACEMENT_PARTS_STORE = 'replacementParts';
-const SUPPLIERS_STORE = 'suppliers';
+const PARTNERS_STORE = 'partners';
 const CHECKLIST_TEMPLATES_STORE = 'checklistTemplates';
 const CHECKLIST_EXECUTIONS_STORE = 'checklistExecutions';
 
@@ -36,6 +37,7 @@ const openDb = (): Promise<IDBDatabase> => {
 
         request.onupgradeneeded = (event) => {
             const dbInstance = (event.target as IDBOpenDBRequest).result;
+            const oldVersion = event.oldVersion;
             
             if (!dbInstance.objectStoreNames.contains(EQUIPMENT_STORE)) {
                 dbInstance.createObjectStore(EQUIPMENT_STORE, { keyPath: 'id' });
@@ -59,8 +61,11 @@ const openDb = (): Promise<IDBDatabase> => {
                 const partsStore = dbInstance.createObjectStore(REPLACEMENT_PARTS_STORE, { keyPath: 'id' });
                 partsStore.createIndex('equipmentId', 'equipmentId', { unique: false });
             }
-            if (!dbInstance.objectStoreNames.contains(SUPPLIERS_STORE)) {
-                dbInstance.createObjectStore(SUPPLIERS_STORE, { keyPath: 'id' });
+            if (!dbInstance.objectStoreNames.contains(PARTNERS_STORE)) {
+                dbInstance.createObjectStore(PARTNERS_STORE, { keyPath: 'id' });
+            }
+            if (oldVersion < 7 && dbInstance.objectStoreNames.contains('suppliers')) {
+                dbInstance.deleteObjectStore('suppliers');
             }
             if (!dbInstance.objectStoreNames.contains(CHECKLIST_TEMPLATES_STORE)) {
                 dbInstance.createObjectStore(CHECKLIST_TEMPLATES_STORE, { keyPath: 'id' });
@@ -148,11 +153,11 @@ export const dbService = {
     updateReplacementPart: (item: ReplacementPart) => update<ReplacementPart>(REPLACEMENT_PARTS_STORE, item),
     deleteReplacementPart: (partId: string) => del(REPLACEMENT_PARTS_STORE, partId),
 
-    // Suppliers
-    getAllSuppliers: () => getAll<Supplier>(SUPPLIERS_STORE),
-    addSupplier: (item: Supplier) => add<Supplier>(SUPPLIERS_STORE, item),
-    updateSupplier: (item: Supplier) => update<Supplier>(SUPPLIERS_STORE, item),
-    deleteSupplier: (supplierId: string) => del(SUPPLIERS_STORE, supplierId),
+    // Partners
+    getAllPartners: () => getAll<Partner>(PARTNERS_STORE),
+    addPartner: (item: Partner) => add<Partner>(PARTNERS_STORE, item),
+    updatePartner: (item: Partner) => update<Partner>(PARTNERS_STORE, item),
+    deletePartner: (partnerId: string) => del(PARTNERS_STORE, partnerId),
 
     // Users
     getAllUsers: () => getAll<User>(USERS_STORE),

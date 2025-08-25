@@ -1,6 +1,8 @@
+
+
 import { useState, useEffect, useCallback } from 'react';
 import { dbService } from '../services/dbService';
-import { Equipment, ServiceOrder, EquipmentStatus, MaintenanceType, ServiceOrderStatus, User, Team, ChatMessage, UserRole, PreventiveMaintenanceSchedule, ReplacementPart, Supplier, ChecklistTemplate, ChecklistExecution } from '../types';
+import { Equipment, ServiceOrder, EquipmentStatus, MaintenanceType, ServiceOrderStatus, User, Team, ChatMessage, UserRole, PreventiveMaintenanceSchedule, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution, PartnerType } from '../types';
 import { DEFAULT_PERMISSIONS } from '../constants/permissions';
 import { useTranslation } from '../i18n/config';
 
@@ -142,12 +144,12 @@ const initialReplacementParts: ReplacementPart[] = [
     { id: 'RP-004', equipmentId: 'INJ-HAITIAN-05', name: 'Bico de Injeção', code: 'HAITIAN-NOZ-050', stockQuantity: 52, supplier: 'WeldSupply Direct' },
 ];
 
-const initialSuppliers: Supplier[] = [
-    { id: 'SUP-001', name: 'Global Bearings Inc.', contactPerson: 'John Smith', phone: '555-1234', email: 'sales@globalbearings.com', address: '123 Industrial Park, Cityville' },
-    { id: 'SUP-002', name: 'Industrial Pumps Co.', contactPerson: 'Jane Doe', phone: '555-5678', email: 'contact@industrialpumps.com', address: '456 Pump Plaza, Townburg' },
-    { id: 'SUP-003', name: 'Precision Holdings', contactPerson: 'Peter Jones', phone: '555-8765', email: 'info@precisionholdings.net', address: '789 Tech Avenue, Metropolis' },
-    { id: 'SUP-004', name: 'WeldSupply Direct', contactPerson: 'Susan Miller', phone: '555-4321', email: 'support@welddirect.com', address: '101 Welders Way, Villagetown' },
-    { id: 'SUP-005', name: 'Mercado Livre', contactPerson: 'N/A', phone: 'N/A', email: 'N/A', address: 'Online Marketplace' },
+const initialPartners: Partner[] = [
+    { id: 'P-001', name: 'Global Bearings Inc.', type: PartnerType.Supplier, contactPerson: 'John Smith', phone: '555-1234', email: 'sales@globalbearings.com', address: '123 Industrial Park, Cityville' },
+    { id: 'P-002', name: 'Industrial Pumps Co.', type: PartnerType.Supplier, contactPerson: 'Jane Doe', phone: '555-5678', email: 'contact@industrialpumps.com', address: '456 Pump Plaza, Townburg' },
+    { id: 'P-003', name: 'Precision Holdings', type: PartnerType.ServiceProvider, contactPerson: 'Peter Jones', phone: '555-8765', email: 'info@precisionholdings.net', address: '789 Tech Avenue, Metropolis' },
+    { id: 'P-004', name: 'WeldSupply Direct', type: PartnerType.Supplier, contactPerson: 'Susan Miller', phone: '555-4321', email: 'support@welddirect.com', address: '101 Welders Way, Villagetown' },
+    { id: 'P-005', name: 'Mercado Livre', type: PartnerType.Supplier, contactPerson: 'N/A', phone: 'N/A', email: 'N/A', address: 'Online Marketplace' },
 ];
 
 const calculateNextDate = (startDate: Date, schedule: PreventiveMaintenanceSchedule): Date | null => {
@@ -177,7 +179,7 @@ export const useDbData = (userId?: string) => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [serviceOrders, setServiceOrders] = useState<ServiceOrder[]>([]);
   const [replacementParts, setReplacementParts] = useState<ReplacementPart[]>([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -226,13 +228,13 @@ export const useDbData = (userId?: string) => {
     try {
         await dbService.openDb();
 
-        const [existingEquipment, existingOrders, existingUsers, existingTeams, existingParts, existingSuppliers, existingTemplates, existingExecutions] = await Promise.all([
+        const [existingEquipment, existingOrders, existingUsers, existingTeams, existingParts, existingPartners, existingTemplates, existingExecutions] = await Promise.all([
             dbService.getAllEquipment(),
             dbService.getAllServiceOrders(),
             dbService.getAllUsers(),
             dbService.getAllTeams(),
             dbService.getAllReplacementParts(),
-            dbService.getAllSuppliers(),
+            dbService.getAllPartners(),
             dbService.getAllChecklistTemplates(),
             dbService.getAllChecklistExecutions(),
         ]);
@@ -272,11 +274,11 @@ export const useDbData = (userId?: string) => {
             setReplacementParts(existingParts);
         }
 
-        if (existingSuppliers.length === 0) {
-            await Promise.all(initialSuppliers.map(s => dbService.addSupplier(s)));
-            setSuppliers(initialSuppliers);
+        if (existingPartners.length === 0) {
+            await Promise.all(initialPartners.map(p => dbService.addPartner(p)));
+            setPartners(initialPartners);
         } else {
-            setSuppliers(existingSuppliers);
+            setPartners(existingPartners);
         }
         
         setUsers(existingUsers);
@@ -451,21 +453,21 @@ export const useDbData = (userId?: string) => {
         setReplacementParts(prev => prev.filter(item => item.id !== partId));
     };
   
-    // Supplier Management
-    const addSupplier = async (item: Omit<Supplier, 'id'>) => {
-        const newItem: Supplier = { ...item, id: `SUP-${Date.now()}` };
-        await dbService.addSupplier(newItem);
-        setSuppliers(prev => [...prev, newItem]);
+    // Partner Management
+    const addPartner = async (item: Omit<Partner, 'id'>) => {
+        const newItem: Partner = { ...item, id: `P-${Date.now()}` };
+        await dbService.addPartner(newItem);
+        setPartners(prev => [...prev, newItem]);
     };
 
-    const updateSupplier = async (updatedItem: Supplier) => {
-        await dbService.updateSupplier(updatedItem);
-        setSuppliers(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+    const updatePartner = async (updatedItem: Partner) => {
+        await dbService.updatePartner(updatedItem);
+        setPartners(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
     };
 
-    const deleteSupplier = async (supplierId: string) => {
-        await dbService.deleteSupplier(supplierId);
-        setSuppliers(prev => prev.filter(item => item.id !== supplierId));
+    const deletePartner = async (partnerId: string) => {
+        await dbService.deletePartner(partnerId);
+        setPartners(prev => prev.filter(item => item.id !== partnerId));
     };
 
 
@@ -707,7 +709,7 @@ export const useDbData = (userId?: string) => {
     equipment, 
     serviceOrders, 
     replacementParts,
-    suppliers,
+    partners,
     users,
     teams,
     chatMessages,
@@ -721,9 +723,9 @@ export const useDbData = (userId?: string) => {
     addReplacementPart,
     updateReplacementPart,
     deleteReplacementPart,
-    addSupplier,
-    updateSupplier,
-    deleteSupplier,
+    addPartner,
+    updatePartner,
+    deletePartner,
     createTeam,
     addTeamMember,
     removeTeamMember,

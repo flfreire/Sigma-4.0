@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useMemo } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
@@ -15,7 +16,7 @@ import PreventiveMaintenance from './components/PreventiveMaintenance';
 import UserManagement from './components/UserManagement';
 import Chat from './components/Chat';
 import UserList from './components/UserList';
-import SupplierList from './components/SupplierList';
+import PartnerList from './components/SupplierList';
 import { UserRole, View } from './types';
 import ChecklistTemplates from './components/ChecklistTemplates';
 import QRScannerModal from './components/QRScannerModal';
@@ -68,7 +69,7 @@ const MainApp: React.FC = () => {
     assistant: t('viewTitles.assistant'),
     'preventive-maintenance': t('viewTitles.preventiveMaintenance'),
     checklists: t('viewTitles.checklists'),
-    suppliers: t('viewTitles.suppliers'),
+    partners: t('viewTitles.partners'),
     'user-management': user?.role === UserRole.Admin ? t('viewTitles.userManagement') : t('viewTitles.team'),
     chat: t('viewTitles.chat'),
     users: t('viewTitles.users'),
@@ -95,7 +96,7 @@ const MainApp: React.FC = () => {
                   equipment={data.equipment} 
                   serviceOrders={data.serviceOrders}
                   users={data.users}
-                  suppliers={data.suppliers}
+                  partners={data.partners}
                   checklistTemplates={data.checklistTemplates}
                 />;
     }
@@ -138,12 +139,12 @@ const MainApp: React.FC = () => {
                     updateTemplate={data.updateChecklistTemplate}
                     deleteTemplate={data.deleteChecklistTemplate}
                />;
-      case 'suppliers':
-        return <SupplierList 
-                  suppliers={data.suppliers}
-                  addSupplier={data.addSupplier}
-                  updateSupplier={data.updateSupplier}
-                  deleteSupplier={data.deleteSupplier}
+      case 'partners':
+        return <PartnerList 
+                  partners={data.partners}
+                  addPartner={data.addPartner}
+                  updatePartner={data.updatePartner}
+                  deletePartner={data.deletePartner}
                 />;
       case 'users':
         return <UserList 
@@ -181,7 +182,7 @@ const MainApp: React.FC = () => {
                   equipment={data.equipment} 
                   serviceOrders={data.serviceOrders}
                   users={data.users}
-                  suppliers={data.suppliers}
+                  partners={data.partners}
                   checklistTemplates={data.checklistTemplates}
                 />;
     }

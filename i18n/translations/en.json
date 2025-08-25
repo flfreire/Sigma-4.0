@@ -12,7 +12,7 @@
     "aiAssistant": "AI Assistant",
     "preventiveMaintenance": "Preventive Maint.",
     "checklists": "Checklists",
-    "suppliers": "Suppliers",
+    "partners": "Partners",
     "users": "Users",
     "teamManagement": "Team",
     "userManagement": "Management",
@@ -26,7 +26,7 @@
     "assistant": "AI Predictive Assistant",
     "preventiveMaintenance": "Preventive Maintenance Calendar",
     "checklists": "Checklist Templates",
-    "suppliers": "Supplier Management",
+    "partners": "Partner Management",
     "users": "User Directory",
     "team": "Team Management",
     "userManagement": "User & Team Management",
@@ -43,11 +43,15 @@
     "correctiveOrders": "Corrective Orders",
     "noProblematicEquipment": "No equipment data to display.",
     "totalUsers": "Total Users",
-    "totalSuppliers": "Total Suppliers",
+    "totalPartners": "Total Partners",
     "totalChecklists": "Checklist Templates",
     "totalRehabCost": "Completed Rehab Cost",
     "equipmentByType": "Equipment by Type",
-    "serviceOrdersOverview": "Service Orders Overview"
+    "serviceOrdersOverview": "Service Orders Overview",
+    "filterTitle": "Data Filters",
+    "allMonths": "All Time",
+    "completed": "Completed",
+    "pending": "Pending"
   },
   "equipment": {
     "title": "Equipment Master List",
@@ -218,16 +222,17 @@
     "modalTitle": "Preventive Maintenance on {date}",
     "noEvents": "No preventive maintenance scheduled for this day."
   },
-  "suppliers": {
-    "title": "Supplier Management",
-    "add": "Add Supplier",
+  "partners": {
+    "title": "Partner Management",
+    "add": "Add Partner",
     "edit": "Edit",
-    "deleteConfirm": "Are you sure you want to delete this supplier?",
-    "modalAddTitle": "Add New Supplier",
-    "modalEditTitle": "Edit Supplier",
-    "noSuppliers": "No suppliers found. Click 'Add Supplier' to get started.",
+    "deleteConfirm": "Are you sure you want to delete this partner?",
+    "modalAddTitle": "Add New Partner",
+    "modalEditTitle": "Edit Partner",
+    "noPartners": "No partners found. Click 'Add Partner' to get started.",
     "headers": {
-      "name": "Supplier Name",
+      "name": "Name",
+      "type": "Type",
       "contactPerson": "Contact Person",
       "phone": "Phone",
       "email": "Email",
@@ -235,11 +240,13 @@
       "actions": "Actions"
     },
     "form": {
-      "name": "Supplier Name",
+      "name": "Partner Name",
+      "type": "Partner Type",
       "contactPerson": "Contact Person",
       "phone": "Phone Number",
       "email": "Email Address",
-      "address": "Address"
+      "address": "Address",
+      "validateAddress": "Validate Address (opens Google Maps)"
     }
   },
   "team": {
@@ -363,6 +370,10 @@
     "checklistItemType": {
         "OK_NOT_OK": "OK / Not OK",
         "NUMERIC": "Numeric Value"
+    },
+    "partnerType": {
+      "Supplier": "Supplier",
+      "ServiceProvider": "Service Provider"
     }
   }
 }

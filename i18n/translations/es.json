@@ -12,7 +12,7 @@
     "aiAssistant": "Asistente IA",
     "preventiveMaintenance": "Mant. Preventivo",
     "checklists": "Checklists",
-    "suppliers": "Proveedores",
+    "partners": "Socios",
     "users": "Usuarios",
     "teamManagement": "Equipo",
     "userManagement": "Gestión",
@@ -26,7 +26,7 @@
     "assistant": "Asistente Predictivo IA",
     "preventiveMaintenance": "Calendario de Mantenimiento Preventivo",
     "checklists": "Plantillas de Checklist",
-    "suppliers": "Gestión de Proveedores",
+    "partners": "Gestión de Socios",
     "users": "Directorio de Usuarios",
     "team": "Gestión de Equipo",
     "userManagement": "Gestión de Usuarios y Equipos",
@@ -43,11 +43,15 @@
     "correctiveOrders": "Órdenes Correctivas",
     "noProblematicEquipment": "No hay datos de equipos para mostrar.",
     "totalUsers": "Usuarios Totales",
-    "totalSuppliers": "Proveedores Totales",
+    "totalPartners": "Socios Totales",
     "totalChecklists": "Plantillas de Checklist",
     "totalRehabCost": "Costo de Rehabilitación Completada",
     "equipmentByType": "Equipos por Tipo",
-    "serviceOrdersOverview": "Resumen de Órdenes de Servicio"
+    "serviceOrdersOverview": "Resumen de Órdenes de Servicio",
+    "filterTitle": "Filtros de Datos",
+    "allMonths": "Todo el Tiempo",
+    "completed": "Completadas",
+    "pending": "Pendientes"
   },
   "equipment": {
     "title": "Lista Maestra de Equipos",
@@ -218,16 +222,17 @@
     "modalTitle": "Mantenimiento Preventivo el {date}",
     "noEvents": "No hay mantenimiento preventivo programado para este día."
   },
-  "suppliers": {
-    "title": "Gestión de Proveedores",
-    "add": "Añadir Proveedor",
+  "partners": {
+    "title": "Gestión de Socios",
+    "add": "Añadir Socio",
     "edit": "Editar",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este proveedor?",
-    "modalAddTitle": "Añadir Nuevo Proveedor",
-    "modalEditTitle": "Editar Proveedor",
-    "noSuppliers": "No se encontraron proveedores. Haga clic en 'Añadir Proveedor' para empezar.",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este socio?",
+    "modalAddTitle": "Añadir Nuevo Socio",
+    "modalEditTitle": "Editar Socio",
+    "noPartners": "No se encontraron socios. Haga clic en 'Añadir Socio' para empezar.",
     "headers": {
-      "name": "Nombre del Proveedor",
+      "name": "Nombre",
+      "type": "Tipo",
       "contactPerson": "Persona de Contacto",
       "phone": "Teléfono",
       "email": "Correo Electrónico",
@@ -235,11 +240,13 @@
       "actions": "Acciones"
     },
     "form": {
-      "name": "Nombre del Proveedor",
+      "name": "Nombre del Socio",
+      "type": "Tipo de Socio",
       "contactPerson": "Persona de Contacto",
       "phone": "Número de Teléfono",
       "email": "Dirección de Correo",
-      "address": "Dirección"
+      "address": "Dirección",
+      "validateAddress": "Validar Dirección (abre Google Maps)"
     }
   },
   "team": {
@@ -363,6 +370,10 @@
     "checklistItemType": {
         "OK_NOT_OK": "OK / No OK",
         "NUMERIC": "Valor Numérico"
+    },
+    "partnerType": {
+      "Supplier": "Proveedor",
+      "ServiceProvider": "Proveedor de Servicios"
     }
   }
 }
