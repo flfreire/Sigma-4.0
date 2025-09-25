@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ServiceOrder, Equipment, MaintenanceType, ServiceOrderStatus, ChecklistTemplate, ChecklistExecution, User, Team } from '../types';
+import { ServiceOrder, Equipment, MaintenanceType, ServiceOrderStatus, ChecklistTemplate, ChecklistExecution, User, Team, FailureMode } from '../types';
 import Modal from './Modal';
 import { PlusIcon, PhotoIcon, XMarkIcon } from './icons';
 import { useTranslation } from '../i18n/config';
@@ -14,6 +14,7 @@ interface ServiceOrderListProps {
   checklistExecutions: ChecklistExecution[];
   users: User[];
   teams: Team[];
+  failureModes: FailureMode[];
   addServiceOrder: (order: Omit<ServiceOrder, 'id'>) => Promise<void>;
   updateServiceOrder: (order: ServiceOrder) => Promise<void>;
   addChecklistExecution: (execution: Omit<ChecklistExecution, 'id'>, serviceOrder: ServiceOrder) => Promise<void>;
@@ -33,7 +34,8 @@ const ServiceOrderForm: React.FC<{
   initialData?: ServiceOrder | null;
   equipment: Equipment[];
   teams: Team[];
-}> = ({ onSubmit, onClose, initialData, equipment, teams }) => {
+  failureModes: FailureMode[];
+}> = ({ onSubmit, onClose, initialData, equipment, teams, failureModes }) => {
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
         equipmentId: initialData?.equipmentId || '',
@@ -44,6 +46,7 @@ const ServiceOrderForm: React.FC<{
         scheduledDate: initialData?.scheduledDate || new Date().toISOString().split('T')[0],
         rehabilitationCost: initialData?.rehabilitationCost || 0,
         photos: initialData?.photos || [],
+        failureModeId: initialData?.failureModeId || '',
     });
 
     const isNewOrder = !initialData;
@@ -57,6 +60,15 @@ const ServiceOrderForm: React.FC<{
         }
     }, [formData.equipmentId, formData.type, isNewOrder, equipment]);
 
+    const selectedEquipment = useMemo(() => equipment.find(e => e.id === formData.equipmentId), [equipment, formData.equipmentId]);
+
+    const relevantFailureModes = useMemo(() => {
+        if (!selectedEquipment) return [];
+        const validTypes = selectedEquipment.type === 'Automation' 
+            ? ['Machinery', 'Automation'] 
+            : [selectedEquipment.type];
+        return failureModes.filter(fm => validTypes.includes(fm.equipmentType));
+    }, [selectedEquipment, failureModes]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -66,11 +78,12 @@ const ServiceOrderForm: React.FC<{
 
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            const files = Array.from(e.target.files);
-            files.forEach(file => {
+            // FIX: Use a for...of loop to correctly iterate over the FileList.
+            // The 'for...in' loop iterates over keys, causing runtime errors.
+            for (const file of e.target.files) {
                 if (file.size > 2 * 1024 * 1024) { // 2MB limit
                     alert(`File ${file.name} is too large. Please select an image under 2MB.`);
-                    return;
+                    continue;
                 }
                 const reader = new FileReader();
                 reader.onloadend = () => {
@@ -81,7 +94,7 @@ const ServiceOrderForm: React.FC<{
                     }));
                 };
                 reader.readAsDataURL(file);
-            });
+            }
             e.target.value = ""; // Allow re-selecting the same file
         }
     };
@@ -122,6 +135,22 @@ const ServiceOrderForm: React.FC<{
                     </select>
                 </div>
             </div>
+             {formData.type === MaintenanceType.Corrective && (
+                <div>
+                    <label className="block text-sm font-medium text-highlight">{t('serviceOrders.form.failureMode')}</label>
+                    <select
+                        name="failureModeId"
+                        value={formData.failureModeId}
+                        onChange={handleChange}
+                        required
+                        className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-50"
+                        disabled={!formData.equipmentId}
+                    >
+                        <option value="">{t('serviceOrders.form.selectFailureMode')}</option>
+                        {relevantFailureModes.map(fm => <option key={fm.id} value={fm.id}>{fm.name}</option>)}
+                    </select>
+                </div>
+            )}
             <div>
                 <label className="block text-sm font-medium text-highlight">{t('serviceOrders.form.description')}</label>
                 <textarea name="description" value={formData.description} onChange={handleChange} required rows={3} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2" />
@@ -147,19 +176,25 @@ const ServiceOrderForm: React.FC<{
                 </div>
             </div>
 
-            {formData.type === MaintenanceType.Rehabilitation && (
+            {(
+                formData.type === MaintenanceType.Rehabilitation ||
+                formData.type === MaintenanceType.Corrective ||
+                formData.type === MaintenanceType.Preventive
+            ) && (
                 <div className="space-y-4 pt-4 border-t border-accent">
-                    <div>
-                        <label className="block text-sm font-medium text-highlight">{t('serviceOrders.form.rehabilitationCost')}</label>
-                        <input type="number" name="rehabilitationCost" value={formData.rehabilitationCost} onChange={handleChange} min="0" step="0.01" className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2"/>
-                    </div>
+                    {formData.type === MaintenanceType.Rehabilitation && (
+                        <div>
+                            <label className="block text-sm font-medium text-highlight">{t('serviceOrders.form.rehabilitationCost')}</label>
+                            <input type="number" name="rehabilitationCost" value={formData.rehabilitationCost} onChange={handleChange} min="0" step="0.01" className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2"/>
+                        </div>
+                    )}
                     <div>
                         <label className="block text-sm font-medium text-highlight">{t('serviceOrders.form.photos')}</label>
                         <label htmlFor="photo-upload" className="mt-1 cursor-pointer bg-accent text-light py-2 px-4 rounded-md hover:bg-highlight text-sm text-center transition-colors inline-block">
                           {t('serviceOrders.form.addPhotos')}
                         </label>
                         <input id="photo-upload" name="photo-upload" type="file" className="sr-only" accept="image/png, image/jpeg" onChange={handlePhotoChange} multiple/>
-                        {formData.photos.length > 0 && (
+                        {formData.photos && formData.photos.length > 0 && (
                             <div className="mt-4">
                                 <p className="text-sm font-medium text-highlight mb-2">{t('serviceOrders.form.photoPreviews')}</p>
                                 <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
@@ -186,7 +221,7 @@ const ServiceOrderForm: React.FC<{
     )
 }
 
-const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equipment, addServiceOrder, updateServiceOrder, checklistTemplates, addChecklistExecution, getChecklistExecutionById, users, teams }) => {
+const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equipment, addServiceOrder, updateServiceOrder, checklistTemplates, addChecklistExecution, getChecklistExecutionById, users, teams, failureModes }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isChecklistModalOpen, setIsChecklistModalOpen] = useState(false);
     const [detailsModalOrder, setDetailsModalOrder] = useState<ServiceOrder | null>(null);
@@ -345,9 +380,10 @@ const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equi
                             <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.orderId')}</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.equipment')}</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.type')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.assignedTeam')}</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.status')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.scheduledDate')}</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.openedDate')}</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.closedDate')}</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.duration')}</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.cost')}</th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.actions')}</th>
                         </tr>
@@ -364,18 +400,19 @@ const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equi
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-light">{order.id}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-light">{getEquipmentName(order.equipmentId)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{t(`enums.maintenanceType.${order.type}`)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-light">{getTeamName(order.assignedToTeamId)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                         <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white ${statusColorMap[order.status]}`}>
                                             {t(`enums.serviceOrderStatus.${order.status}`)}
                                         </span>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.scheduledDate}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.openedDate ? new Date(order.openedDate).toLocaleString(language, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.closedDate ? new Date(order.closedDate).toLocaleString(language, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.maintenanceDuration ? order.maintenanceDuration.toFixed(1) : '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">
                                         {order.rehabilitationCost ? order.rehabilitationCost.toLocaleString(language, { style: 'currency', currency: language === 'pt' ? 'BRL' : 'USD' }) : '-'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                        {order.type === MaintenanceType.Rehabilitation && order.photos && order.photos.length > 0 && (
+                                        {[MaintenanceType.Corrective, MaintenanceType.Preventive, MaintenanceType.Rehabilitation].includes(order.type) && order.photos && order.photos.length > 0 && (
                                             <button onClick={() => setDetailsModalOrder(order)} className="text-highlight hover:text-light" title={t('serviceOrders.form.photos')}>
                                                 <PhotoIcon className="h-5 w-5"/>
                                             </button>
@@ -392,7 +429,7 @@ const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equi
                             )})
                         ) : (
                             <tr>
-                                <td colSpan={8} className="px-6 py-8 text-center text-highlight">
+                                <td colSpan={9} className="px-6 py-8 text-center text-highlight">
                                     {t('serviceOrders.filters.noResults')}
                                 </td>
                             </tr>
@@ -401,18 +438,20 @@ const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equi
                 </table>
             </div>
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingOrder ? t('serviceOrders.modalEditTitle') : t('serviceOrders.modalAddTitle')}>
-                <ServiceOrderForm onSubmit={handleSave} onClose={handleCloseModal} initialData={editingOrder} equipment={equipment} teams={teams} />
+                <ServiceOrderForm onSubmit={handleSave} onClose={handleCloseModal} initialData={editingOrder} equipment={equipment} teams={teams} failureModes={failureModes} />
             </Modal>
              {detailsModalOrder && (
-                <Modal isOpen={!!detailsModalOrder} onClose={() => setDetailsModalOrder(null)} title={t('serviceOrders.detailsModalTitle')}>
+                <Modal isOpen={!!detailsModalOrder} onClose={() => setDetailsModalOrder(null)} title={t('serviceOrders.photosModalTitle')}>
                     <div className="max-h-[70vh] overflow-y-auto p-1">
                         <h3 className="text-lg font-bold text-light mb-2">{getEquipmentName(detailsModalOrder.equipmentId)}</h3>
-                        <p className="text-highlight mb-4"><span className="font-semibold">{t('serviceOrders.headers.cost')}:</span> {detailsModalOrder.rehabilitationCost?.toLocaleString(language, { style: 'currency', currency: 'BRL' })}</p>
+                        {detailsModalOrder.type === MaintenanceType.Rehabilitation && detailsModalOrder.rehabilitationCost ? (
+                            <p className="text-highlight mb-4"><span className="font-semibold">{t('serviceOrders.headers.cost')}:</span> {detailsModalOrder.rehabilitationCost.toLocaleString(language, { style: 'currency', currency: language === 'pt' ? 'BRL' : 'USD' })}</p>
+                        ) : null}
                         
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {detailsModalOrder.photos?.map((photo, index) => (
                                 <a key={index} href={photo} target="_blank" rel="noopener noreferrer">
-                                    <img src={photo} alt={`Rehabilitation photo ${index + 1}`} className="rounded-md object-cover w-full h-40 border-2 border-accent hover:border-brand transition-colors"/>
+                                    <img src={photo} alt={`Maintenance photo ${index + 1}`} className="rounded-md object-cover w-full h-40 border-2 border-accent hover:border-brand transition-colors"/>
                                 </a>
                             ))}
                         </div>

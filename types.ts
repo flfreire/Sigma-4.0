@@ -43,7 +43,27 @@ export enum ChecklistItemType {
 
 export enum PartnerType {
   Supplier = 'Supplier',
-  ServiceProvider = 'Service Provider',
+  ServiceProvider = 'ServiceProvider',
+}
+
+export enum QuoteStatus {
+  Draft = 'Draft',
+  Sent = 'Sent',
+  Answered = 'Answered',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
+}
+
+export enum QuoteType {
+  Parts = 'Parts',
+  Service = 'Service',
+}
+
+export enum InstrumentStatus {
+  Active = 'Active',
+  InCalibration = 'In Calibration',
+  Damaged = 'Damaged',
+  Retired = 'Retired',
 }
 
 export interface MaintenanceLog {
@@ -107,6 +127,30 @@ export interface Equipment {
   projectFiles?: ProjectFile[];
 }
 
+export interface CalibrationLog {
+  id: string;
+  date: string; // ISO date
+  technician: string;
+  certificateNumber: string;
+  notes: string;
+  result: 'Approved' | 'Rejected';
+}
+
+export interface MeasurementInstrument {
+  id: string; // User-defined ID (e.g., PAQ-001)
+  name: string; // e.g., "Digital Caliper"
+  model: string;
+  manufacturer: string;
+  serialNumber?: string;
+  purchaseDate: string; // ISO date
+  status: InstrumentStatus;
+  location: string;
+  calibrationIntervalMonths: number;
+  lastCalibrationDate?: string; // ISO date
+  nextCalibrationDate?: string; // ISO date
+  calibrationHistory: CalibrationLog[];
+}
+
 export interface ReplacementPart {
   id: string;
   name: string;
@@ -114,6 +158,13 @@ export interface ReplacementPart {
   equipmentId: string;
   stockQuantity: number;
   supplier: string;
+}
+
+export interface FailureMode {
+  id: string;
+  name: string;
+  description: string;
+  equipmentType: 'Machinery' | 'Tooling' | 'Automation' | 'Body in White' | string;
 }
 
 export interface ServiceOrder {
@@ -128,6 +179,10 @@ export interface ServiceOrder {
   checklistExecutionId?: string;
   rehabilitationCost?: number;
   photos?: string[];
+  openedDate?: string; // ISO string for when the order was created/opened
+  closedDate?: string; // ISO string for when the order was completed/cancelled
+  maintenanceDuration?: number; // Duration in hours
+  failureModeId?: string; // ID of the failure mode for corrective maintenance
 }
 
 export interface PredictiveAnalysis {
@@ -136,7 +191,7 @@ export interface PredictiveAnalysis {
   potentialRisks: string[];
 }
 
-export type View = 'dashboard' | 'equipment' | 'service-orders' | 'assistant' | 'preventive-maintenance' | 'chat' | 'user-management' | 'users' | 'partners' | 'checklists';
+export type View = 'dashboard' | 'equipment' | 'service-orders' | 'assistant' | 'preventive-maintenance' | 'chat' | 'user-management' | 'users' | 'partners' | 'checklists' | 'analysis' | 'failure-modes' | 'quotes' | 'metrology';
 
 export interface User {
   id: string;
@@ -172,4 +227,30 @@ export interface Partner {
   phone: string;
   email: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface QuoteItem {
+  id: string;
+  description: string;
+  quantity: number;
+  unitPrice?: number;
+  totalPrice?: number;
+}
+
+export interface Quote {
+  id: string;
+  partnerId: string;
+  quoteType: QuoteType;
+  status: QuoteStatus;
+  title: string;
+  description: string;
+  requestDate: string; // ISO string
+  responseDate?: string; // ISO string
+  items: QuoteItem[];
+  attachments?: ProjectFile[];
+  requesterUserId: string;
+  totalCost?: number;
+  notes?: string;
 }

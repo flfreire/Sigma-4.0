@@ -1,7 +1,6 @@
 
 
-
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -16,10 +15,14 @@ import PreventiveMaintenance from './components/PreventiveMaintenance';
 import UserManagement from './components/UserManagement';
 import Chat from './components/Chat';
 import UserList from './components/UserList';
-import PartnerList from './components/SupplierList';
+import PartnerList from './components/PartnerList';
 import { UserRole, View } from './types';
 import ChecklistTemplates from './components/ChecklistTemplates';
 import QRScannerModal from './components/QRScannerModal';
+import Analysis from './components/Analysis';
+import FailureModeList from './components/FailureModeList';
+import QuoteList from './components/QuoteList';
+import MetrologyList from './components/MetrologyList';
 
 const MainApp: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
@@ -29,6 +32,27 @@ const MainApp: React.FC = () => {
   const { t } = useTranslation();
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [equipmentToFocus, setEquipmentToFocus] = useState<string | null>(null);
+
+  useEffect(() => {
+    // On application startup, request the user's location permission to enhance map features.
+    // This triggers the browser's native permission prompt if the user hasn't
+    // already granted or denied it for this site.
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => {
+          // Success: permission granted or already available.
+          // The map component will use it when required.
+          console.log("Geolocation permission has been granted.");
+        },
+        (error) => {
+          // Error: user denied permission or another error occurred.
+          // The app will continue to function, but location-based features will be limited.
+          console.warn(`Geolocation permission error: ${error.message}`);
+        }
+      );
+    }
+  }, []); // Empty dependency array ensures this runs only once when the app loads.
+
 
   const userTeam = useMemo(() => {
     if (!user?.teamId || !data.teams) return null;
@@ -62,17 +86,21 @@ const MainApp: React.FC = () => {
       }
   };
 
-  const viewTitles: { [key in View]: string } = {
+  const viewTitles: { [key in View]?: string } = {
     dashboard: t('viewTitles.dashboard'),
     equipment: t('viewTitles.equipment'),
-    'service-orders': t('viewTitles.serviceOrders'),
+    metrology: t('viewTitles.metrology'),
+    'service-orders': t('viewTitles.service-orders'),
     assistant: t('viewTitles.assistant'),
-    'preventive-maintenance': t('viewTitles.preventiveMaintenance'),
+    'preventive-maintenance': t('viewTitles.preventive-maintenance'),
     checklists: t('viewTitles.checklists'),
     partners: t('viewTitles.partners'),
-    'user-management': user?.role === UserRole.Admin ? t('viewTitles.userManagement') : t('viewTitles.team'),
+    'user-management': user?.role === UserRole.Admin ? t('viewTitles.user-management') : t('viewTitles.team'),
     chat: t('viewTitles.chat'),
     users: t('viewTitles.users'),
+    analysis: t('viewTitles.analysis'),
+    'failure-modes': t('viewTitles.failure-modes'),
+    quotes: t('viewTitles.quotes'),
   };
 
   const renderView = () => {
@@ -115,6 +143,13 @@ const MainApp: React.FC = () => {
                     equipmentToFocus={equipmentToFocus}
                     onFocusDone={() => setEquipmentToFocus(null)}
                 />;
+      case 'metrology':
+        return <MetrologyList
+                  instruments={data.measurementInstruments}
+                  addInstrument={data.addMeasurementInstrument}
+                  updateInstrument={data.updateMeasurementInstrument}
+                  deleteInstrument={data.deleteMeasurementInstrument}
+                />;
       case 'service-orders':
         return <ServiceOrderList 
                   serviceOrders={data.serviceOrders} 
@@ -127,6 +162,7 @@ const MainApp: React.FC = () => {
                   getChecklistExecutionById={data.getChecklistExecutionById}
                   users={data.users}
                   teams={data.teams}
+                  failureModes={data.failureModes}
                 />;
       case 'assistant':
         return <div className="p-6"><PredictiveAssistant equipmentList={data.equipment} /></div>;
@@ -139,12 +175,34 @@ const MainApp: React.FC = () => {
                     updateTemplate={data.updateChecklistTemplate}
                     deleteTemplate={data.deleteChecklistTemplate}
                />;
+      case 'analysis':
+        return <Analysis 
+                  serviceOrders={data.serviceOrders}
+                  equipment={data.equipment}
+                  failureModes={data.failureModes}
+               />;
+      case 'failure-modes':
+        return <FailureModeList
+                  failureModes={data.failureModes}
+                  addFailureMode={data.addFailureMode}
+                  updateFailureMode={data.updateFailureMode}
+                  deleteFailureMode={data.deleteFailureMode}
+               />;
       case 'partners':
         return <PartnerList 
                   partners={data.partners}
                   addPartner={data.addPartner}
                   updatePartner={data.updatePartner}
                   deletePartner={data.deletePartner}
+                />;
+      case 'quotes':
+        return <QuoteList
+                    quotes={data.quotes}
+                    partners={data.partners}
+                    currentUser={user}
+                    addQuote={data.addQuote}
+                    updateQuote={data.updateQuote}
+                    deleteQuote={data.deleteQuote}
                 />;
       case 'users':
         return <UserList 
@@ -228,7 +286,7 @@ const MainApp: React.FC = () => {
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-            <Header title={viewTitles[currentView]} onMobileMenuToggle={() => setIsMobileMenuOpen(true)} />
+            <Header title={viewTitles[currentView] || 'SIGMA 4.0'} onMobileMenuToggle={() => setIsMobileMenuOpen(true)} />
             <main className="flex-1 overflow-x-hidden overflow-y-auto">
                 {renderView()}
             </main>

@@ -62,6 +62,12 @@ export const CalendarDaysIcon: React.FC<IconProps> = ({ className }) => (
     </svg>
 );
 
+export const ClockIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
+
 export const UsersIcon: React.FC<IconProps> = ({ className }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-2.452a9.357 9.357 0 00-1.5-3.055a9.383 9.383 0 00-4.255-2.452M9.348 14.626a9.383 9.383 0 00-4.255-2.452a9.357 9.357 0 00-1.5 3.055a9.337 9.337 0 004.121 2.452a9.38 9.38 0 002.625.372M8.652 15.348a9.383 9.383 0 01-2.625-.372m0 0a9.337 9.337 0 01-4.121-2.452m0 0a9.357 9.357 0 011.5-3.055m0 0a9.383 9.383 0 014.255-2.452m0 0a9.349 9.349 0 016.346 0m0 0a9.383 9.383 0 014.255 2.452m0 0a9.357 9.357 0 011.5 3.055m0 0a9.337 9.337 0 01-4.121 2.452m0 0a9.38 9.38 0 01-2.625-.372m-3.722 0A9.349 9.349 0 0112 14.626m0 0a9.349 9.349 0 013.722 0" />
@@ -137,4 +143,29 @@ export const MapPinIcon: React.FC<IconProps> = ({ className }) => (
       <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
     </svg>
+);
+
+export const ChartPieIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+    </svg>
+);
+
+export const ExclamationTriangleIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+    </svg>
+);
+
+export const CurrencyDollarIcon: React.FC<IconProps> = ({ className }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182.553-.44 1.278-.659 2.003-.659 1.5 0 2.836 1.224 2.836 2.718 0 .527-.04 1.05-.118 1.562M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+    </svg>
+);
+
+export const ScaleIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.131.332 5.988 5.988 0 01-2.131-.332c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c-1.01-.143-2.01-.317-3-.52m3 .52l-2.62 10.726c-.122.499.106 1.028.589 1.202a5.988 5.988 0 002.131.332 5.988 5.988 0 002.131-.332c.483-.174.711-.703.59-1.202L5.25 4.971z" />
+  </svg>
 );

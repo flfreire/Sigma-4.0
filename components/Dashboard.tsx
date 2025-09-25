@@ -1,5 +1,4 @@
 
-
 import React, { useMemo, useState } from 'react';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend,
@@ -7,7 +6,7 @@ import {
 } from 'recharts';
 import { Equipment, ServiceOrder, EquipmentStatus, ServiceOrderStatus, MaintenanceType, User, Partner, ChecklistTemplate } from '../types';
 import Card from './Card';
-import { WrenchScrewdriverIcon, ClipboardListIcon, UsersIcon, TruckIcon, ClipboardDocumentCheckIcon } from './icons';
+import { WrenchScrewdriverIcon, ClipboardListIcon, UsersIcon, TruckIcon, ClipboardDocumentCheckIcon, ClockIcon } from './icons';
 import { useTranslation } from '../i18n/config';
 
 interface DashboardProps {
@@ -29,6 +28,7 @@ const typeColors: { [key: string]: string } = {
     Machinery: '#3B82F6', // brand blue
     Tooling: '#F97316', // orange-500
     Automation: '#8B5CF6', // violet-500
+    'Body in White': '#A78BFA', // violet-400
     Unknown: '#6B7280', // gray-500
 };
 
@@ -71,6 +71,33 @@ const Dashboard: React.FC<DashboardProps> = ({ equipment, serviceOrders, users, 
       .reduce((sum, o) => sum + (o.rehabilitationCost || 0), 0);
   }, [filteredServiceOrders]);
 
+  const mtbfHours = useMemo(() => {
+    const failures = filteredServiceOrders.filter(o => 
+        o.type === MaintenanceType.Corrective && o.status === ServiceOrderStatus.Completed
+    );
+    
+    if (failures.length === 0) {
+      return null;
+    }
+
+    const equipmentWithFailures = [...new Set(failures.map(f => f.equipmentId))];
+    const relevantEquipment = equipment.filter(e => equipmentWithFailures.includes(e.id));
+
+    if (relevantEquipment.length === 0) {
+      return null;
+    }
+
+    const totalUptimeMs = relevantEquipment.reduce((acc, eq) => {
+      const uptime = new Date().getTime() - new Date(eq.installDate).getTime();
+      return acc + uptime;
+    }, 0);
+    
+    const totalUptimeHours = totalUptimeMs / (1000 * 60 * 60);
+
+    return totalUptimeHours / failures.length;
+
+  }, [filteredServiceOrders, equipment]);
+
   const equipmentStatusData = useMemo(() => Object.values(EquipmentStatus).map(status => ({
     name: t(`enums.equipmentStatus.${status}`),
     value: equipment.filter(e => e.status === status).length,
@@ -88,6 +115,7 @@ const Dashboard: React.FC<DashboardProps> = ({ equipment, serviceOrders, users, 
         'Machinery': `equipment.tabs.machinery`,
         'Tooling': `equipment.tabs.tooling`,
         'Automation': `equipment.tabs.automation`,
+        'Body in White': `equipment.tabs.bodyInWhite`,
     }
 
     return Object.entries(counts).map(([type, value]) => ({
@@ -261,9 +289,15 @@ const Dashboard: React.FC<DashboardProps> = ({ equipment, serviceOrders, users, 
             </ResponsiveContainer>
         </div>
       </div>
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card title={t('dashboard.totalRehabCost')} value={totalRehabCost.toLocaleString(language, { style: 'currency', currency })} icon={<WrenchScrewdriverIcon className="h-8 w-8" />} colorClass="text-purple-400" />
         <Card title={t('dashboard.totalChecklists')} value={totalChecklists} icon={<ClipboardDocumentCheckIcon className="h-8 w-8" />} colorClass="text-yellow-400" />
+        <Card 
+            title={t('dashboard.mtbf')} 
+            value={mtbfHours !== null ? `${mtbfHours.toFixed(0)} h` : 'N/A'} 
+            icon={<ClockIcon className="h-8 w-8" />} 
+            colorClass="text-cyan-400" 
+        />
       </div>
     </div>
   );

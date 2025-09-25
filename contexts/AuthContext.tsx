@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
 import { mockAuthService } from '../services/mockAuthService';
@@ -60,8 +59,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const loggedInUser = await mockAuthService.login(email, password);
       setUser(loggedInUser);
       sessionStorage.setItem('sigma-user', JSON.stringify(loggedInUser));
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      setError(message);
       throw e; // re-throw for the form to handle it
     } finally {
       setIsLoading(false);
@@ -73,8 +73,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     try {
       await mockAuthService.register(name, email, password);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      setError(message);
       throw e; // re-throw for the form to handle it
     } finally {
       setIsLoading(false);

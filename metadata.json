@@ -2,7 +2,8 @@
   "name": "SIGMA 4.0 - Integrated Management System for Machinery and Tooling",
   "description": "A modern web application to systematize, centralize, and improve the efficiency of corrective, preventive, and predictive maintenance for industrial machinery, equipment, and tools. The system facilitates the management of service orders and provides a comprehensive overview of all assets.",
   "requestFramePermissions": [
-    "camera"
+    "camera",
+    "geolocation"
   ],
   "prompt": ""
 }

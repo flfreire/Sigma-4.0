@@ -43,8 +43,8 @@ const TeamManagement: React.FC<TeamManagementProps> = ({
         await addTeamMember(team, memberEmail);
         setMemberEmail('');
         setError(null);
-    } catch(err: any) {
-        setError(err.message);
+    } catch(err) {
+        setError(err instanceof Error ? err.message : String(err));
     }
   };
 

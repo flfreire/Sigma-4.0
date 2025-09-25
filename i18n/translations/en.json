@@ -8,29 +8,37 @@
     "title": "SIGMA 4.0",
     "dashboard": "Dashboard",
     "equipment": "Equipment",
-    "serviceOrders": "Service Orders",
-    "aiAssistant": "AI Assistant",
-    "preventiveMaintenance": "Preventive Maint.",
+    "metrology": "Metrology",
+    "service-orders": "Service Orders",
+    "assistant": "AI Assistant",
+    "preventive-maintenance": "Preventive Maint.",
     "checklists": "Checklists",
+    "analysis": "Analysis",
+    "failure-modes": "Failure Modes",
     "partners": "Partners",
+    "quotes": "Quotes",
     "users": "Users",
     "teamManagement": "Team",
-    "userManagement": "Management",
+    "user-management": "Management",
     "chat": "Chat",
     "qrScanner": "Scan QR Code"
   },
   "viewTitles": {
     "dashboard": "Dashboard",
     "equipment": "Equipment Management",
-    "serviceOrders": "Service Order Management",
+    "metrology": "Metrology Control",
+    "service-orders": "Service Order Management",
     "assistant": "AI Predictive Assistant",
-    "preventiveMaintenance": "Preventive Maintenance Calendar",
+    "preventive-maintenance": "Preventive Maintenance Calendar",
     "checklists": "Checklist Templates",
     "partners": "Partner Management",
+    "quotes": "Quote Management",
     "users": "User Directory",
     "team": "Team Management",
-    "userManagement": "User & Team Management",
-    "chat": "Team Chat"
+    "user-management": "User & Team Management",
+    "chat": "Team Chat",
+    "analysis": "Reliability Analysis",
+    "failure-modes": "Failure Mode Management"
   },
   "dashboard": {
     "totalEquipment": "Total Equipment",
@@ -51,7 +59,47 @@
     "filterTitle": "Data Filters",
     "allMonths": "All Time",
     "completed": "Completed",
-    "pending": "Pending"
+    "pending": "Pending",
+    "mtbf": "Mean Time Between Failures (MTBF)"
+  },
+  "analysis": {
+    "title": "Reliability Analysis Dashboard",
+    "filters": {
+      "title": "Dashboard Filters",
+      "dateRange": "Filter by Date Range",
+      "equipmentType": "Filter by Equipment Type",
+      "allTypes": "All Types"
+    },
+    "charts": {
+      "mtbfTitle": "MTBF by Equipment Type (Hours)",
+      "frequentFailuresTitle": "Top 5 Most Frequent Failures",
+      "problematicEquipmentTitle": "Top 5 Most Problematic Equipment",
+      "noData": "Not enough data to display this chart.",
+      "count": "Count"
+    }
+  },
+  "failureModes": {
+    "title": "Failure Mode Management",
+    "add": "New Failure Mode",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete the failure mode \"{name}\"? This action cannot be undone.",
+    "modalAddTitle": "Create New Failure Mode",
+    "modalEditTitle": "Edit Failure Mode",
+    "noModes": "No failure modes created yet. Click 'New Failure Mode' to start.",
+    "form": {
+      "name": "Failure Mode Name",
+      "description": "Description",
+      "equipmentType": "Applicable Equipment Type",
+      "cancel": "Cancel",
+      "save": "Save Failure Mode"
+    },
+    "headers": {
+      "name": "Name",
+      "description": "Description",
+      "equipmentType": "Equipment Type",
+      "actions": "Actions"
+    }
   },
   "equipment": {
     "title": "Equipment Master List",
@@ -69,6 +117,7 @@
       "machinery": "Machinery",
       "tooling": "Tooling",
       "automation": "Automation",
+      "bodyInWhite": "Body in White (Devices)",
       "general": "General Info",
       "parts": "Replacement Parts",
       "drawings": "Drawings & Files"
@@ -125,6 +174,81 @@
       }
     }
   },
+   "metrology": {
+    "title": "Metrology Instrument Control",
+    "add": "Add Instrument",
+    "details": "Details",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete the instrument \"{name}\" ({id})? This action cannot be undone.",
+    "noInstruments": "No measurement instruments registered. Click 'Add Instrument' to start.",
+    "modalAddTitle": "Add New Instrument",
+    "modalEditTitle": "Edit Instrument",
+    "tabs": {
+      "general": "General Info",
+      "calibration": "Calibration History",
+      "list": "List",
+      "analysis": "Analysis"
+    },
+    "analysis": {
+      "byTypeTitle": "Instruments by Type",
+      "byStatusTitle": "Calibration Status Summary",
+      "status": {
+        "ok": "Calibrated",
+        "dueSoon": "Due Soon (30d)",
+        "overdue": "Overdue",
+        "inCalibration": "In Calibration",
+        "damaged": "Damaged",
+        "retired": "Retired"
+      }
+    },
+    "headers": {
+      "id": "ID",
+      "name": "Name",
+      "status": "Status",
+      "location": "Location",
+      "lastCalibration": "Last Calibration",
+      "nextCalibration": "Next Calibration",
+      "actions": "Actions"
+    },
+    "form": {
+      "id": "Instrument ID",
+      "idPlaceholder": "e.g., PAQ-001",
+      "name": "Instrument Name",
+      "model": "Model",
+      "manufacturer": "Manufacturer",
+      "serialNumber": "Serial Number",
+      "purchaseDate": "Purchase Date",
+      "status": "Status",
+      "location": "Location",
+      "calibrationInterval": "Calibration Interval (Months)",
+      "lastCalibrationDate": "Last Calibration Date",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "calibration": {
+      "title": "Calibration History",
+      "add": "Add Record",
+      "noRecords": "No calibration records found.",
+      "deleteConfirm": "Are you sure you want to delete this calibration record?",
+      "headers": {
+        "date": "Date",
+        "technician": "Technician/Company",
+        "certificate": "Certificate No.",
+        "result": "Result"
+      },
+      "form": {
+        "title": "New Calibration Record",
+        "date": "Calibration Date",
+        "technician": "Technician/Company",
+        "certificate": "Certificate Number",
+        "result": "Result",
+        "notes": "Notes",
+        "notesPlaceholder": "Add any relevant notes...",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      }
+    }
+  },
   "serviceOrders": {
     "title": "Service Orders",
     "create": "Create Service Order",
@@ -132,7 +256,7 @@
     "fillChecklist": "Fill Checklist",
     "viewChecklist": "View Checklist",
     "checklistModalTitle": "Preventive Checklist for {equipmentName}",
-    "detailsModalTitle": "Rehabilitation Details",
+    "photosModalTitle": "Maintenance Photos",
     "modalAddTitle": "Create New Service Order",
     "modalEditTitle": "Edit Service Order",
     "form": {
@@ -148,6 +272,8 @@
       "photos": "Photos",
       "addPhotos": "Add Photos",
       "photoPreviews": "Photo Previews",
+      "failureMode": "Failure Mode",
+      "selectFailureMode": "Select a failure mode...",
       "cancel": "Cancel",
       "save": "Save Order"
     },
@@ -159,7 +285,10 @@
       "assignedTeam": "Assigned Team",
       "scheduledDate": "Scheduled Date",
       "cost": "Cost",
-      "actions": "Actions"
+      "actions": "Actions",
+      "openedDate": "Opened Date",
+      "closedDate": "Closed Date",
+      "duration": "Duration (h)"
     },
     "filters": {
       "title": "Filters",
@@ -230,6 +359,21 @@
     "modalAddTitle": "Add New Partner",
     "modalEditTitle": "Edit Partner",
     "noPartners": "No partners found. Click 'Add Partner' to get started.",
+    "viewTabs": {
+      "list": "List View",
+      "map": "Map View"
+    },
+    "map": {
+      "filterByType": "Filter by type:",
+      "all": "All",
+      "findNearMe": "Find Near Me",
+      "searchingLocation": "Searching for your location...",
+      "searchByClick": "Click on the map to find nearby partners.",
+      "nearbyPartners": "Nearby Partners",
+      "noNearby": "No partners found near this location.",
+      "addressError": "Address could not be located. Partner will be saved without map data.",
+      "geolocationError": "Could not get your location. Please check browser permissions."
+    },
     "headers": {
       "name": "Name",
       "type": "Type",
@@ -247,6 +391,48 @@
       "email": "Email Address",
       "address": "Address",
       "validateAddress": "Validate Address (opens Google Maps)"
+    }
+  },
+  "quotes": {
+    "title": "Quote Management",
+    "add": "New Quote Request",
+    "edit": "Edit",
+    "delete": "Delete",
+    "details": "Details",
+    "deleteConfirm": "Are you sure you want to delete the quote request \"{title}\"?",
+    "modalAddTitle": "Create New Quote Request",
+    "modalEditTitle": "Edit Quote Request",
+    "noQuotes": "No quote requests found. Click 'New Quote Request' to start.",
+    "form": {
+      "title": "Title / Subject",
+      "partner": "Partner",
+      "selectPartner": "Select a partner...",
+      "quoteType": "Quote Type",
+      "status": "Status",
+      "description": "Request Description",
+      "notes": "Partner Notes / Response",
+      "totalCost": "Total Cost",
+      "itemsTitle": "Items to Quote",
+      "addItem": "Add Item",
+      "itemDescription": "Item Description",
+      "itemQuantity": "Quantity",
+      "itemUnitPrice": "Unit Price",
+      "attachmentsTitle": "Attachments",
+      "addAttachment": "Add Attachment",
+      "fileSizeError": "File is too large. Max 5MB.",
+      "cancel": "Cancel",
+      "saveDraft": "Save as Draft",
+      "sendQuote": "Send Quote Request"
+    },
+    "headers": {
+      "id": "ID",
+      "title": "Title",
+      "partner": "Partner",
+      "type": "Type",
+      "status": "Status",
+      "requestDate": "Request Date",
+      "totalCost": "Total Cost",
+      "actions": "Actions"
     }
   },
   "team": {
@@ -342,6 +528,12 @@
       "Needs Repair": "Needs Repair",
       "Decommissioned": "Decommissioned"
     },
+    "equipmentType": {
+      "Machinery": "Machinery",
+      "Tooling": "Tooling",
+      "Automation": "Automation",
+      "Body in White": "Body in White"
+    },
     "maintenanceType": {
       "Corrective": "Corrective",
       "Preventive": "Preventive",
@@ -359,6 +551,12 @@
       "Manager": "Manager",
       "Technician": "Technician"
     },
+     "instrumentStatus": {
+      "Active": "Active",
+      "In Calibration": "In Calibration",
+      "Damaged": "Damaged",
+      "Retired": "Retired"
+    },
     "preventiveMaintenanceSchedule": {
       "None": "None",
       "Monthly": "Monthly",
@@ -374,6 +572,17 @@
     "partnerType": {
       "Supplier": "Supplier",
       "ServiceProvider": "Service Provider"
+    },
+    "quoteStatus": {
+      "Draft": "Draft",
+      "Sent": "Sent",
+      "Answered": "Answered",
+      "Approved": "Approved",
+      "Rejected": "Rejected"
+    },
+    "quoteType": {
+      "Parts": "Parts",
+      "Service": "Service"
     }
   }
 }

@@ -1,9 +1,9 @@
 
 
-import { Equipment, ServiceOrder, User, Team, ChatMessage, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution } from '../types';
+import { Equipment, ServiceOrder, User, Team, ChatMessage, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution, FailureMode, Quote, MeasurementInstrument } from '../types';
 
 const DB_NAME = 'Sigma4DB';
-const DB_VERSION = 7; // Incremented version for schema change
+const DB_VERSION = 10; // Incremented version for schema change
 const EQUIPMENT_STORE = 'equipment';
 const ORDERS_STORE = 'serviceOrders';
 const USERS_STORE = 'users';
@@ -13,6 +13,9 @@ const REPLACEMENT_PARTS_STORE = 'replacementParts';
 const PARTNERS_STORE = 'partners';
 const CHECKLIST_TEMPLATES_STORE = 'checklistTemplates';
 const CHECKLIST_EXECUTIONS_STORE = 'checklistExecutions';
+const FAILURE_MODES_STORE = 'failureModes';
+const QUOTES_STORE = 'quotes';
+const METROLOGY_STORE = 'measurementInstruments';
 
 
 let db: IDBDatabase;
@@ -74,6 +77,17 @@ const openDb = (): Promise<IDBDatabase> => {
                 const executionsStore = dbInstance.createObjectStore(CHECKLIST_EXECUTIONS_STORE, { keyPath: 'id' });
                 executionsStore.createIndex('serviceOrderId', 'serviceOrderId', { unique: false });
                 executionsStore.createIndex('equipmentId', 'equipmentId', { unique: false });
+            }
+            if (!dbInstance.objectStoreNames.contains(FAILURE_MODES_STORE)) {
+                const failureModesStore = dbInstance.createObjectStore(FAILURE_MODES_STORE, { keyPath: 'id' });
+                failureModesStore.createIndex('equipmentType', 'equipmentType', { unique: false });
+            }
+            if (!dbInstance.objectStoreNames.contains(QUOTES_STORE)) {
+                const quotesStore = dbInstance.createObjectStore(QUOTES_STORE, { keyPath: 'id' });
+                quotesStore.createIndex('partnerId', 'partnerId', { unique: false });
+            }
+            if (!dbInstance.objectStoreNames.contains(METROLOGY_STORE)) {
+                dbInstance.createObjectStore(METROLOGY_STORE, { keyPath: 'id' });
             }
         };
     });
@@ -142,6 +156,12 @@ export const dbService = {
     addEquipment: (item: Equipment) => add<Equipment>(EQUIPMENT_STORE, item),
     updateEquipment: (item: Equipment) => update<Equipment>(EQUIPMENT_STORE, item),
     
+    // Measurement Instruments
+    getAllMeasurementInstruments: () => getAll<MeasurementInstrument>(METROLOGY_STORE),
+    addMeasurementInstrument: (item: MeasurementInstrument) => add<MeasurementInstrument>(METROLOGY_STORE, item),
+    updateMeasurementInstrument: (item: MeasurementInstrument) => update<MeasurementInstrument>(METROLOGY_STORE, item),
+    deleteMeasurementInstrument: (id: string) => del(METROLOGY_STORE, id),
+
     // Service Orders
     getAllServiceOrders: () => getAll<ServiceOrder>(ORDERS_STORE),
     addServiceOrder: (item: ServiceOrder) => add<ServiceOrder>(ORDERS_STORE, item),
@@ -203,4 +223,16 @@ export const dbService = {
     getAllChecklistExecutions: () => getAll<ChecklistExecution>(CHECKLIST_EXECUTIONS_STORE),
     addChecklistExecution: (item: ChecklistExecution) => add<ChecklistExecution>(CHECKLIST_EXECUTIONS_STORE, item),
     getChecklistExecution: (id: string) => get<ChecklistExecution>(CHECKLIST_EXECUTIONS_STORE, id),
+
+    // Failure Modes
+    getAllFailureModes: () => getAll<FailureMode>(FAILURE_MODES_STORE),
+    addFailureMode: (item: FailureMode) => add<FailureMode>(FAILURE_MODES_STORE, item),
+    updateFailureMode: (item: FailureMode) => update<FailureMode>(FAILURE_MODES_STORE, item),
+    deleteFailureMode: (id: string) => del(FAILURE_MODES_STORE, id),
+    
+    // Quotes
+    getAllQuotes: () => getAll<Quote>(QUOTES_STORE),
+    addQuote: (item: Quote) => add<Quote>(QUOTES_STORE, item),
+    updateQuote: (item: Quote) => update<Quote>(QUOTES_STORE, item),
+    deleteQuote: (id: string) => del(QUOTES_STORE, id),
 };

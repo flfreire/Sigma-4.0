@@ -65,8 +65,8 @@ const UserManagement: React.FC<ManagementProps> = ({
                 // When an admin creates a team, they are the owner
                 await createTeam(newTeamName, currentUser.id);
                 setNewTeamName('');
-            } catch (err: any) {
-                setError(err.message);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : String(err));
             }
         };
 
@@ -78,8 +78,8 @@ const UserManagement: React.FC<ManagementProps> = ({
                 await addTeamMember(team, addMemberEmail);
                 setAddMemberEmail('');
                 setTargetTeamIdForAdd(null);
-            } catch (err: any) {
-                setError(err.message);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : String(err));
                 // Don't clear email on error so user can correct it
             }
         };

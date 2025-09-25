@@ -31,7 +31,7 @@ const EquipmentList: React.FC<EquipmentListProps> = ({ equipment, replacementPar
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [qrCodeEquipment, setQrCodeEquipment] = useState<Equipment | null>(null);
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'All' | 'Machinery' | 'Tooling'>('All');
+  const [activeTab, setActiveTab] = useState<'All' | 'Machinery' | 'Tooling' | 'BodyInWhite'>('All');
   
   const handleOpenDetailModal = useCallback((item?: Equipment) => {
     setSelectedEquipment(item || null);
@@ -65,13 +65,17 @@ const EquipmentList: React.FC<EquipmentListProps> = ({ equipment, replacementPar
     if (activeTab === 'Tooling') {
       return equipment.filter(item => item.type === 'Tooling');
     }
+    if (activeTab === 'BodyInWhite') {
+      return equipment.filter(item => item.type === 'Body in White');
+    }
     return equipment;
   }, [equipment, activeTab]);
 
-  const TABS: { key: 'All' | 'Machinery' | 'Tooling'; labelKey: string }[] = [
+  const TABS: { key: 'All' | 'Machinery' | 'Tooling' | 'BodyInWhite'; labelKey: string }[] = [
     { key: 'All', labelKey: 'equipment.tabs.all' },
     { key: 'Machinery', labelKey: 'equipment.tabs.machinery' },
     { key: 'Tooling', labelKey: 'equipment.tabs.tooling' },
+    { key: 'BodyInWhite', labelKey: 'equipment.tabs.bodyInWhite' },
   ];
 
   return (

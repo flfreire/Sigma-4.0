@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { dbService } from '../services/dbService';
-import { Equipment, ServiceOrder, EquipmentStatus, MaintenanceType, ServiceOrderStatus, User, Team, ChatMessage, UserRole, PreventiveMaintenanceSchedule, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution, PartnerType } from '../types';
+import { Equipment, ServiceOrder, EquipmentStatus, MaintenanceType, ServiceOrderStatus, User, Team, ChatMessage, UserRole, PreventiveMaintenanceSchedule, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution, PartnerType, FailureMode, Quote, QuoteStatus, QuoteType, MeasurementInstrument, InstrumentStatus } from '../types';
 import { DEFAULT_PERMISSIONS } from '../constants/permissions';
 import { useTranslation } from '../i18n/config';
 
@@ -96,6 +96,52 @@ const initialEquipment: Equipment[] = [
   }
 ];
 
+const initialMeasurementInstruments: MeasurementInstrument[] = [
+    {
+        id: 'PAQ-001',
+        name: 'Paquímetro Digital',
+        model: '500-196-30B',
+        manufacturer: 'Mitutoyo',
+        serialNumber: '1029384',
+        purchaseDate: '2023-01-10',
+        status: InstrumentStatus.Active,
+        location: 'Laboratório de Metrologia',
+        calibrationIntervalMonths: 12,
+        lastCalibrationDate: '2024-02-15',
+        nextCalibrationDate: '2025-02-15',
+        calibrationHistory: [
+            { id: 'cal-1', date: '2024-02-15', technician: 'LabCalibra', certificateNumber: 'CERT-2024-182', notes: 'Ajuste de zero realizado.', result: 'Approved' }
+        ],
+    },
+    {
+        id: 'MIC-005',
+        name: 'Micrômetro Externo',
+        model: '103-137',
+        manufacturer: 'Mitutoyo',
+        serialNumber: '8372011',
+        purchaseDate: '2022-11-20',
+        status: InstrumentStatus.InCalibration,
+        location: 'Ferramentaria',
+        calibrationIntervalMonths: 12,
+        lastCalibrationDate: '2023-07-20',
+        nextCalibrationDate: '2024-07-20',
+        calibrationHistory: [],
+    },
+     {
+        id: 'ALT-002',
+        name: 'Altímetro Digital',
+        model: 'S234',
+        manufacturer: 'Starrett',
+        purchaseDate: '2023-05-30',
+        status: InstrumentStatus.Damaged,
+        location: 'Laboratório de Metrologia',
+        calibrationIntervalMonths: 24,
+        lastCalibrationDate: '2023-06-10',
+        nextCalibrationDate: '2025-06-10',
+        calibrationHistory: [],
+    },
+];
+
 const initialTeams: Team[] = [
     {
         id: 'team-main-1',
@@ -114,6 +160,7 @@ const initialServiceOrders: ServiceOrder[] = [
     description: 'Manutenção semestral programada.',
     scheduledDate: '2024-07-10',
     assignedToTeamId: 'team-main-1',
+    openedDate: '2024-07-10T10:00:00.000Z',
   },
   {
     id: 'SO-2024-002',
@@ -123,6 +170,8 @@ const initialServiceOrders: ServiceOrder[] = [
     description: 'Sistema hidráulico com vazamento.',
     scheduledDate: '2024-07-15',
     assignedToTeamId: 'team-main-1',
+    openedDate: '2024-07-15T09:30:00.000Z',
+    failureModeId: 'FM-001',
   },
    {
     id: 'SO-2024-003',
@@ -134,6 +183,7 @@ const initialServiceOrders: ServiceOrder[] = [
     assignedToTeamId: 'team-main-1',
     rehabilitationCost: 15000,
     photos: [],
+    openedDate: '2024-08-01T08:00:00.000Z',
   },
 ];
 
@@ -145,11 +195,91 @@ const initialReplacementParts: ReplacementPart[] = [
 ];
 
 const initialPartners: Partner[] = [
-    { id: 'P-001', name: 'Global Bearings Inc.', type: PartnerType.Supplier, contactPerson: 'John Smith', phone: '555-1234', email: 'sales@globalbearings.com', address: '123 Industrial Park, Cityville' },
-    { id: 'P-002', name: 'Industrial Pumps Co.', type: PartnerType.Supplier, contactPerson: 'Jane Doe', phone: '555-5678', email: 'contact@industrialpumps.com', address: '456 Pump Plaza, Townburg' },
-    { id: 'P-003', name: 'Precision Holdings', type: PartnerType.ServiceProvider, contactPerson: 'Peter Jones', phone: '555-8765', email: 'info@precisionholdings.net', address: '789 Tech Avenue, Metropolis' },
-    { id: 'P-004', name: 'WeldSupply Direct', type: PartnerType.Supplier, contactPerson: 'Susan Miller', phone: '555-4321', email: 'support@welddirect.com', address: '101 Welders Way, Villagetown' },
-    { id: 'P-005', name: 'Mercado Livre', type: PartnerType.Supplier, contactPerson: 'N/A', phone: 'N/A', email: 'N/A', address: 'Online Marketplace' },
+    {
+      id: 'P-SP-001',
+      name: 'TRUMPF Ferramentas Elétricas',
+      type: PartnerType.Supplier,
+      contactPerson: 'Departamento de Vendas',
+      phone: '(15) 3416-2900',
+      email: 'vendas@br.trumpf.com',
+      address: 'Av. Dr. Léo de Affonseca, 60 - Parque Tecnologico, Sorocaba - SP, 18087-160',
+      latitude: -23.4430,
+      longitude: -47.3915
+    },
+    {
+      id: 'P-SP-002',
+      name: 'Indústrias ROMI S.A.',
+      type: PartnerType.Supplier,
+      contactPerson: 'Central de Vendas',
+      phone: '(19) 3455-9000',
+      email: 'vendas@romi.com',
+      address: 'Rod. SP 304, km 141,5, Santa Bárbara d\'Oeste - SP, 13453-900',
+      latitude: -22.7448,
+      longitude: -47.3887
+    },
+    {
+      id: 'P-SP-003',
+      name: 'Sandvik Coromant',
+      type: PartnerType.Supplier,
+      contactPerson: 'Suporte ao Cliente',
+      phone: '(11) 5696-5500',
+      email: 'br.coromant@sandvik.com',
+      address: 'Av. das Nações Unidas, 21735 - Jurubatuba, São Paulo - SP, 04795-100',
+      latitude: -23.6676,
+      longitude: -46.7262
+    },
+    {
+      id: 'P-SP-004',
+      name: 'SKF do Brasil',
+      type: PartnerType.Supplier,
+      contactPerson: 'Atendimento',
+      phone: '0800 014 1152',
+      email: 'comunicacao.skf@skf.com',
+      address: 'Rod. Anhanguera, Km 30.5 s/n - Pirituba, São Paulo - SP, 05275-000',
+      latitude: -23.4542,
+      longitude: -46.7601
+    },
+    {
+      id: 'P-SP-005',
+      name: 'Atlas Copco Brasil',
+      type: PartnerType.Supplier,
+      contactPerson: 'Vendas e Serviços',
+      phone: '(11) 3478-8700',
+      email: 'contato@br.atlascopco.com',
+      address: 'Alameda Araguaia, 2700 - Tamboré, Barueri - SP, 06455-000',
+      latitude: -23.5042,
+      longitude: -46.8488
+    },
+];
+
+const initialFailureModes: FailureMode[] = [
+    { id: 'FM-001', name: 'Falha Hidráulica', description: 'Problemas relacionados a vazamentos, pressão ou componentes do sistema hidráulico.', equipmentType: 'Machinery' },
+    { id: 'FM-002', name: 'Falha Elétrica', description: 'Problemas em motores elétricos, painéis de controle, sensores ou fiação.', equipmentType: 'Machinery' },
+    { id: 'FM-003', name: 'Desgaste Mecânico', description: 'Desgaste excessivo de componentes como rolamentos, engrenagens, ou correias.', equipmentType: 'Machinery' },
+    { id: 'FM-004', name: 'Erro de Software/Controlador', description: 'Falhas no CLP, CNC ou software de controle do equipamento.', equipmentType: 'Automation' },
+    { id: 'FM-005', name: 'Quebra de Ferramenta', description: 'Quebra ou desgaste prematuro da ferramenta de corte ou estampo.', equipmentType: 'Tooling' },
+    { id: 'FM-006', name: 'Problema de Calibração', description: 'Perda de precisão ou repetibilidade devido a problemas de calibração.', equipmentType: 'Tooling' },
+    { id: 'FM-007', name: 'Falha de Sensor', description: 'Sensores de presença, posição ou outros não funcionando corretamente.', equipmentType: 'Body in White' },
+];
+
+const initialQuotes: Quote[] = [
+    {
+        id: 'Q-2024-001',
+        partnerId: 'P-SP-002', // ROMI
+        quoteType: QuoteType.Parts,
+        status: QuoteStatus.Answered,
+        title: 'Orçamento para Rolamentos do Fuso',
+        description: 'Solicitamos cotação para 2 unidades de rolamentos do fuso para o Centro de Usinagem D 800.',
+        requestDate: '2024-07-20T10:00:00.000Z',
+        responseDate: '2024-07-22T14:00:00.000Z',
+        requesterUserId: 'user-1',
+        items: [
+            { id: 'qi-1', description: 'Rolamento de Contato Angular 7014 C', quantity: 2, unitPrice: 850.00, totalPrice: 1700.00 },
+        ],
+        attachments: [],
+        totalCost: 1700.00,
+        notes: 'Prezado cliente, segue cotação. Prazo de entrega: 5 dias úteis.'
+    },
 ];
 
 const calculateNextDate = (startDate: Date, schedule: PreventiveMaintenanceSchedule): Date | null => {
@@ -185,6 +315,9 @@ export const useDbData = (userId?: string) => {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [checklistTemplates, setChecklistTemplates] = useState<ChecklistTemplate[]>([]);
   const [checklistExecutions, setChecklistExecutions] = useState<ChecklistExecution[]>([]);
+  const [failureModes, setFailureModes] = useState<FailureMode[]>([]);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [measurementInstruments, setMeasurementInstruments] = useState<MeasurementInstrument[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
   
@@ -217,6 +350,7 @@ export const useDbData = (userId?: string) => {
               description,
               scheduledDate: nextDateString,
               assignedToTeamId: undefined,
+              openedDate: new Date().toISOString()
           };
           newSOs.push({ ...newSO, id: `SO-PREV-${equipmentItem.id}-${Date.now() + newSOs.length}`});
       }
@@ -228,7 +362,7 @@ export const useDbData = (userId?: string) => {
     try {
         await dbService.openDb();
 
-        const [existingEquipment, existingOrders, existingUsers, existingTeams, existingParts, existingPartners, existingTemplates, existingExecutions] = await Promise.all([
+        const [existingEquipment, existingOrders, existingUsers, existingTeams, existingParts, existingPartners, existingTemplates, existingExecutions, existingFailureModes, existingQuotes, existingInstruments] = await Promise.all([
             dbService.getAllEquipment(),
             dbService.getAllServiceOrders(),
             dbService.getAllUsers(),
@@ -237,6 +371,9 @@ export const useDbData = (userId?: string) => {
             dbService.getAllPartners(),
             dbService.getAllChecklistTemplates(),
             dbService.getAllChecklistExecutions(),
+            dbService.getAllFailureModes(),
+            dbService.getAllQuotes(),
+            dbService.getAllMeasurementInstruments(),
         ]);
 
         if (existingEquipment.length === 0) {
@@ -244,6 +381,13 @@ export const useDbData = (userId?: string) => {
             setEquipment(initialEquipment);
         } else {
             setEquipment(existingEquipment);
+        }
+        
+        if (existingInstruments.length === 0) {
+            await Promise.all(initialMeasurementInstruments.map(i => dbService.addMeasurementInstrument(i)));
+            setMeasurementInstruments(initialMeasurementInstruments);
+        } else {
+            setMeasurementInstruments(existingInstruments);
         }
 
         if (existingTeams.length === 0) {
@@ -279,6 +423,20 @@ export const useDbData = (userId?: string) => {
             setPartners(initialPartners);
         } else {
             setPartners(existingPartners);
+        }
+        
+        if (existingFailureModes.length === 0) {
+            await Promise.all(initialFailureModes.map(fm => dbService.addFailureMode(fm)));
+            setFailureModes(initialFailureModes);
+        } else {
+            setFailureModes(existingFailureModes);
+        }
+
+        if (existingQuotes.length === 0) {
+            await Promise.all(initialQuotes.map(q => dbService.addQuote(q)));
+            setQuotes(initialQuotes);
+        } else {
+            setQuotes(existingQuotes);
         }
         
         setUsers(existingUsers);
@@ -363,7 +521,11 @@ export const useDbData = (userId?: string) => {
   }
 
   const addServiceOrder = async (order: Omit<ServiceOrder, 'id'>) => {
-    const newOrder: ServiceOrder = { ...order, id: `SO-${Date.now()}` };
+    const newOrder: ServiceOrder = { 
+        ...order, 
+        id: `SO-${Date.now()}`,
+        openedDate: new Date().toISOString()
+    };
     await dbService.addServiceOrder(newOrder);
     setServiceOrders(prev => [...prev, newOrder]);
      if(order.type === MaintenanceType.Corrective) {
@@ -374,21 +536,35 @@ export const useDbData = (userId?: string) => {
   };
   
   const updateServiceOrder = async (updatedOrder: ServiceOrder) => {
-     await dbService.updateServiceOrder(updatedOrder);
-     let currentSOs = serviceOrders.map(item => item.id === updatedOrder.id ? updatedOrder : item);
-     
-     if (updatedOrder.status === ServiceOrderStatus.Completed) {
-        await updateEquipmentStatus(updatedOrder.equipmentId, EquipmentStatus.Operational);
+     const oldOrder = serviceOrders.find(o => o.id === updatedOrder.id);
+     const orderToSave = { ...updatedOrder };
 
-        if (updatedOrder.type === MaintenanceType.Preventive) {
-            const equipmentToUpdate = equipment.find(e => e.id === updatedOrder.equipmentId);
+     const isClosing = (orderToSave.status === ServiceOrderStatus.Completed || orderToSave.status === ServiceOrderStatus.Cancelled);
+     const wasOpen = oldOrder?.status !== ServiceOrderStatus.Completed && oldOrder?.status !== ServiceOrderStatus.Cancelled;
+
+     if (isClosing && wasOpen) {
+        orderToSave.closedDate = new Date().toISOString();
+        if (orderToSave.openedDate) {
+            const durationMs = new Date(orderToSave.closedDate).getTime() - new Date(orderToSave.openedDate).getTime();
+            orderToSave.maintenanceDuration = durationMs / (1000 * 60 * 60);
+        }
+     }
+     
+     await dbService.updateServiceOrder(orderToSave);
+     let currentSOs = serviceOrders.map(item => item.id === orderToSave.id ? orderToSave : item);
+     
+     if (orderToSave.status === ServiceOrderStatus.Completed) {
+        await updateEquipmentStatus(orderToSave.equipmentId, EquipmentStatus.Operational);
+
+        if (orderToSave.type === MaintenanceType.Preventive) {
+            const equipmentToUpdate = equipment.find(e => e.id === orderToSave.equipmentId);
             if (equipmentToUpdate?.preventiveSchedule && equipmentToUpdate.preventiveSchedule !== PreventiveMaintenanceSchedule.None) {
                 
                 const allPreventiveSOs = [...currentSOs]
-                    .filter(so => so.equipmentId === updatedOrder.equipmentId && so.type === MaintenanceType.Preventive)
+                    .filter(so => so.equipmentId === orderToSave.equipmentId && so.type === MaintenanceType.Preventive)
                     .sort((a,b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
                 
-                const lastSO = allPreventiveSOs.length > 0 ? allPreventiveSOs[allPreventiveSOs.length - 1] : updatedOrder;
+                const lastSO = allPreventiveSOs.length > 0 ? allPreventiveSOs[allPreventiveSOs.length - 1] : orderToSave;
                 
                 const nextDateAfterLast = calculateNextDate(new Date(lastSO.scheduledDate), equipmentToUpdate.preventiveSchedule);
 
@@ -404,14 +580,16 @@ export const useDbData = (userId?: string) => {
                         description,
                         scheduledDate: nextDateString,
                         assignedToTeamId: undefined, // Let it be assigned manually later
+                        openedDate: new Date().toISOString()
                     };
                     
-                    await dbService.addServiceOrder({ ...newSO, id: `SO-PREV-${Date.now()}` });
-                    currentSOs.push({ ...newSO, id: `SO-PREV-${Date.now()}` });
+                    const newSOFull = { ...newSO, id: `SO-PREV-${Date.now()}` };
+                    await dbService.addServiceOrder(newSOFull);
+                    currentSOs.push(newSOFull);
                 }
                 
                 const firstOpenSO = currentSOs
-                    .filter(so => so.equipmentId === updatedOrder.equipmentId && so.type === MaintenanceType.Preventive && so.status === ServiceOrderStatus.Open)
+                    .filter(so => so.equipmentId === orderToSave.equipmentId && so.type === MaintenanceType.Preventive && so.status === ServiceOrderStatus.Open)
                     .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime())[0];
                 
                 const updatedEquipment = { ...equipmentToUpdate, nextPreventiveMaintenanceDate: firstOpenSO?.scheduledDate };
@@ -419,11 +597,11 @@ export const useDbData = (userId?: string) => {
                 setEquipment(prev => prev.map(e => e.id === updatedEquipment.id ? updatedEquipment : e));
             }
         }
-     } else if (updatedOrder.status === ServiceOrderStatus.InProgress || updatedOrder.status === ServiceOrderStatus.Open) {
-        if(updatedOrder.type === MaintenanceType.Corrective) {
-            await updateEquipmentStatus(updatedOrder.equipmentId, EquipmentStatus.NeedsRepair);
+     } else if (orderToSave.status === ServiceOrderStatus.InProgress || orderToSave.status === ServiceOrderStatus.Open) {
+        if(orderToSave.type === MaintenanceType.Corrective) {
+            await updateEquipmentStatus(orderToSave.equipmentId, EquipmentStatus.NeedsRepair);
         } else {
-            await updateEquipmentStatus(updatedOrder.equipmentId, EquipmentStatus.InMaintenance);
+            await updateEquipmentStatus(orderToSave.equipmentId, EquipmentStatus.InMaintenance);
         }
      }
      setServiceOrders(currentSOs);
@@ -435,6 +613,35 @@ export const useDbData = (userId?: string) => {
           await updateEquipment({...equip, status});
       }
   };
+
+  // Measurement Instruments Management
+    const addMeasurementInstrument = async (item: Omit<MeasurementInstrument, 'id'>) => {
+        const newItem = { ...item };
+        if (newItem.lastCalibrationDate && newItem.calibrationIntervalMonths > 0) {
+            const lastCalDate = new Date(newItem.lastCalibrationDate + 'T00:00:00');
+            lastCalDate.setMonth(lastCalDate.getMonth() + newItem.calibrationIntervalMonths);
+            newItem.nextCalibrationDate = lastCalDate.toISOString().split('T')[0];
+        }
+        await dbService.addMeasurementInstrument(newItem as MeasurementInstrument);
+        setMeasurementInstruments(prev => [...prev, newItem as MeasurementInstrument]);
+    };
+    
+    const updateMeasurementInstrument = async (updatedItem: MeasurementInstrument) => {
+        if (updatedItem.lastCalibrationDate && updatedItem.calibrationIntervalMonths > 0) {
+            const lastCalDate = new Date(updatedItem.lastCalibrationDate + 'T00:00:00');
+            lastCalDate.setMonth(lastCalDate.getMonth() + updatedItem.calibrationIntervalMonths);
+            updatedItem.nextCalibrationDate = lastCalDate.toISOString().split('T')[0];
+        } else {
+            updatedItem.nextCalibrationDate = undefined;
+        }
+        await dbService.updateMeasurementInstrument(updatedItem);
+        setMeasurementInstruments(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+    };
+
+    const deleteMeasurementInstrument = async (id: string) => {
+        await dbService.deleteMeasurementInstrument(id);
+        setMeasurementInstruments(prev => prev.filter(item => item.id !== id));
+    };
 
   // Replacement Parts Management
     const addReplacementPart = async (item: Omit<ReplacementPart, 'id'>) => {
@@ -704,6 +911,45 @@ export const useDbData = (userId?: string) => {
     const getChecklistExecutionById = (id: string) => {
         return checklistExecutions.find(e => e.id === id);
     }
+    
+  // Failure Mode Management
+    const addFailureMode = async (mode: Omit<FailureMode, 'id'>) => {
+        const newMode: FailureMode = { ...mode, id: `FM-${Date.now()}` };
+        await dbService.addFailureMode(newMode);
+        setFailureModes(prev => [...prev, newMode]);
+    };
+
+    const updateFailureMode = async (updatedMode: FailureMode) => {
+        await dbService.updateFailureMode(updatedMode);
+        setFailureModes(prev => prev.map(mode => mode.id === updatedMode.id ? updatedMode : mode));
+    };
+
+    const deleteFailureMode = async (id: string) => {
+        const isUsed = serviceOrders.some(so => so.failureModeId === id);
+        if (isUsed) {
+            alert("This failure mode cannot be deleted as it is linked to existing service orders.");
+            return;
+        }
+        await dbService.deleteFailureMode(id);
+        setFailureModes(prev => prev.filter(mode => mode.id !== id));
+    };
+  
+  // Quote Management
+    const addQuote = async (item: Omit<Quote, 'id'>) => {
+        const newItem: Quote = { ...item, id: `Q-${Date.now()}` };
+        await dbService.addQuote(newItem);
+        setQuotes(prev => [...prev, newItem]);
+    };
+
+    const updateQuote = async (updatedItem: Quote) => {
+        await dbService.updateQuote(updatedItem);
+        setQuotes(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+    };
+
+    const deleteQuote = async (id: string) => {
+        await dbService.deleteQuote(id);
+        setQuotes(prev => prev.filter(item => item.id !== id));
+    };
 
   return { 
     equipment, 
@@ -715,6 +961,9 @@ export const useDbData = (userId?: string) => {
     chatMessages,
     checklistTemplates,
     checklistExecutions,
+    failureModes,
+    quotes,
+    measurementInstruments,
     isLoading,
     addEquipment, 
     updateEquipment, 
@@ -738,6 +987,15 @@ export const useDbData = (userId?: string) => {
     updateChecklistTemplate,
     deleteChecklistTemplate,
     addChecklistExecution,
-    getChecklistExecutionById
+    getChecklistExecutionById,
+    addFailureMode,
+    updateFailureMode,
+    deleteFailureMode,
+    addQuote,
+    updateQuote,
+    deleteQuote,
+    addMeasurementInstrument,
+    updateMeasurementInstrument,
+    deleteMeasurementInstrument,
   };
 };

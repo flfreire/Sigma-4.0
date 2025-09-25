@@ -1,6 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { Equipment, PredictiveAnalysis } from '../types';
+import { Equipment, PredictiveAnalysis, Quote, Partner, User } from '../types';
 
 const getAiClient = () => {
   const apiKey = process.env.API_KEY;
@@ -43,9 +43,7 @@ export const getPredictiveMaintenanceAnalysis = async (equipment: Equipment, lan
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-      },
+      // FIX: Removed deprecated `responseMimeType` config. The prompt already instructs the model to return JSON.
     });
 
     const jsonStr = response.text.trim();
@@ -60,4 +58,53 @@ export const getPredictiveMaintenanceAnalysis = async (equipment: Equipment, lan
     }
     throw new Error("Failed to get predictive analysis. The service may be temporarily unavailable.");
   }
+};
+
+export const generateQuoteEmailBody = async (quote: Quote, partner: Partner, currentUser: User, language: 'pt' | 'en'): Promise<string> => {
+    const ai = getAiClient();
+    if (!ai) {
+        throw new Error("Gemini API key not configured. The AI Assistant is unavailable.");
+    }
+
+    const languageInstruction = language === 'pt' ? 'em Português do Brasil' : 'in English';
+
+    const itemsList = quote.items.map(item => `- ${item.quantity}x ${item.description}`).join('\n');
+
+    const prompt = `
+        Act as a procurement professional from SIGMA 4.0. Write a clear and professional email to request a price quote. The email body must be entirely ${languageInstruction}. Do not include a subject line.
+
+        Here is the information for the email:
+        - Recipient Name: ${partner.contactPerson}
+        - Recipient Company: ${partner.name}
+        - Sender Name: ${currentUser.name}
+        - Sender Company: SIGMA 4.0
+        - Quote Title/Subject: ${quote.title}
+        - General Description: ${quote.description}
+        - Items to be quoted:
+        ${itemsList}
+        - Attachments: The email should mention that there are attachments if the quote has them. This quote has ${quote.attachments?.length || 0} attachments.
+
+        Start the email with a polite greeting (e.g., "Prezado(a) ${partner.contactPerson}," or "Dear ${partner.contactPerson},").
+        Clearly state the purpose of the email is to request a quotation for the listed items/services.
+        Include the detailed list of items.
+        If there are attachments, mention them.
+        End with a professional closing (e.g., "Atenciosamente," or "Sincerely,") followed by the sender's name and company.
+        Do not add any text before the greeting or after the signature.
+    `;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+        });
+        
+        return response.text.trim();
+
+    } catch (error) {
+        console.error("Error generating quote email from Gemini:", error);
+        if (error instanceof Error && error.message.includes("API key not valid")) {
+            throw new Error("The configured Gemini API key is invalid. Please check your configuration.");
+        }
+        throw new Error("Failed to generate quote email. The AI service may be temporarily unavailable.");
+    }
 };

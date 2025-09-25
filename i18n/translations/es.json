@@ -8,29 +8,37 @@
     "title": "SIGMA 4.0",
     "dashboard": "Panel",
     "equipment": "Equipos",
-    "serviceOrders": "Órdenes de Servicio",
-    "aiAssistant": "Asistente IA",
-    "preventiveMaintenance": "Mant. Preventivo",
+    "metrology": "Metrología",
+    "service-orders": "Órdenes de Servicio",
+    "assistant": "Asistente IA",
+    "preventive-maintenance": "Mant. Preventivo",
     "checklists": "Checklists",
+    "analysis": "Análisis",
+    "failure-modes": "Modos de Fallo",
     "partners": "Socios",
+    "quotes": "Cotizaciones",
     "users": "Usuarios",
     "teamManagement": "Equipo",
-    "userManagement": "Gestión",
+    "user-management": "Gestión",
     "chat": "Chat",
     "qrScanner": "Escanear QR"
   },
   "viewTitles": {
     "dashboard": "Panel",
     "equipment": "Gestión de Equipos",
-    "serviceOrders": "Gestión de Órdenes de Servicio",
+    "metrology": "Control de Metrología",
+    "service-orders": "Gestión de Órdenes de Servicio",
     "assistant": "Asistente Predictivo IA",
-    "preventiveMaintenance": "Calendario de Mantenimiento Preventivo",
+    "preventive-maintenance": "Calendario de Mantenimiento Preventivo",
     "checklists": "Plantillas de Checklist",
     "partners": "Gestión de Socios",
+    "quotes": "Gestión de Cotizaciones",
     "users": "Directorio de Usuarios",
     "team": "Gestión de Equipo",
-    "userManagement": "Gestión de Usuarios y Equipos",
-    "chat": "Chat de Equipo"
+    "user-management": "Gestión de Usuarios y Equipos",
+    "chat": "Chat de Equipo",
+    "analysis": "Análisis de Fiabilidad",
+    "failure-modes": "Gestión de Modos de Fallo"
   },
   "dashboard": {
     "totalEquipment": "Equipos Totales",
@@ -51,7 +59,47 @@
     "filterTitle": "Filtros de Datos",
     "allMonths": "Todo el Tiempo",
     "completed": "Completadas",
-    "pending": "Pendientes"
+    "pending": "Pendientes",
+    "mtbf": "Tiempo Medio Entre Fallos (MTBF)"
+  },
+  "analysis": {
+    "title": "Panel de Análisis de Fiabilidad",
+    "filters": {
+      "title": "Filtros del Panel",
+      "dateRange": "Filtrar por Rango de Fechas",
+      "equipmentType": "Filtrar por Tipo de Equipo",
+      "allTypes": "Todos los Tipos"
+    },
+    "charts": {
+      "mtbfTitle": "MTBF por Tipo de Equipo (Horas)",
+      "frequentFailuresTitle": "Top 5 Fallos Más Frecuentes",
+      "problematicEquipmentTitle": "Top 5 Equipos Más Problemáticos",
+      "noData": "No hay datos suficientes para mostrar este gráfico.",
+      "count": "Recuento"
+    }
+  },
+  "failureModes": {
+    "title": "Gestión de Modos de Fallo",
+    "add": "Nuevo Modo de Fallo",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "deleteConfirm": "¿Está seguro de que desea eliminar el modo de fallo \"{name}\"? Esta acción no se puede deshacer.",
+    "modalAddTitle": "Crear Nuevo Modo de Fallo",
+    "modalEditTitle": "Editar Modo de Fallo",
+    "noModes": "No hay modos de fallo creados. Haga clic en 'Nuevo Modo de Fallo' para empezar.",
+    "form": {
+      "name": "Nombre del Modo de Fallo",
+      "description": "Descripción",
+      "equipmentType": "Tipo de Equipo Aplicable",
+      "cancel": "Cancelar",
+      "save": "Guardar Modo de Fallo"
+    },
+    "headers": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "equipmentType": "Tipo de Equipo",
+      "actions": "Acciones"
+    }
   },
   "equipment": {
     "title": "Lista Maestra de Equipos",
@@ -69,6 +117,7 @@
       "machinery": "Maquinaria",
       "tooling": "Herramientas",
       "automation": "Automatización",
+      "bodyInWhite": "Body in White (Dispositivos)",
       "general": "Información General",
       "parts": "Repuestos",
       "drawings": "Diseños y Archivos"
@@ -125,6 +174,81 @@
       }
     }
   },
+  "metrology": {
+    "title": "Control de Metrología",
+    "add": "Añadir Instrumento",
+    "details": "Detalles",
+    "delete": "Eliminar",
+    "deleteConfirm": "¿Está seguro de que desea eliminar el instrumento \"{name}\" ({id})? Esta acción no se puede deshacer.",
+    "noInstruments": "No hay instrumentos de medición registrados. Haga clic en 'Añadir Instrumento' para empezar.",
+    "modalAddTitle": "Añadir Nuevo Instrumento",
+    "modalEditTitle": "Editar Instrumento",
+    "tabs": {
+      "general": "Información General",
+      "calibration": "Historial de Calibración",
+      "list": "Lista",
+      "analysis": "Análisis"
+    },
+    "analysis": {
+      "byTypeTitle": "Instrumentos por Tipo",
+      "byStatusTitle": "Resumen del Estado de Calibración",
+      "status": {
+        "ok": "Calibrado",
+        "dueSoon": "Vence Pronto (30d)",
+        "overdue": "Vencido",
+        "inCalibration": "En Calibración",
+        "damaged": "Dañado",
+        "retired": "Retirado"
+      }
+    },
+    "headers": {
+      "id": "ID",
+      "name": "Nombre",
+      "status": "Estado",
+      "location": "Ubicación",
+      "lastCalibration": "Última Calibración",
+      "nextCalibration": "Próxima Calibración",
+      "actions": "Acciones"
+    },
+    "form": {
+      "id": "ID del Instrumento",
+      "idPlaceholder": "Ej: PAQ-001",
+      "name": "Nombre del Instrumento",
+      "model": "Modelo",
+      "manufacturer": "Fabricante",
+      "serialNumber": "Número de Serie",
+      "purchaseDate": "Fecha de Compra",
+      "status": "Estado",
+      "location": "Ubicación",
+      "calibrationInterval": "Intervalo de Calibración (Meses)",
+      "lastCalibrationDate": "Fecha de Última Calibración",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "calibration": {
+      "title": "Historial de Calibración",
+      "add": "Añadir Registro",
+      "noRecords": "No se encontraron registros de calibración.",
+      "deleteConfirm": "¿Está seguro de que desea eliminar este registro de calibración?",
+      "headers": {
+        "date": "Fecha",
+        "technician": "Técnico/Empresa",
+        "certificate": "Nº de Certificado",
+        "result": "Resultado"
+      },
+      "form": {
+        "title": "Nuevo Registro de Calibración",
+        "date": "Fecha de Calibración",
+        "technician": "Técnico/Empresa",
+        "certificate": "Número de Certificado",
+        "result": "Resultado",
+        "notes": "Notas",
+        "notesPlaceholder": "Añada notas relevantes...",
+        "approved": "Aprobado",
+        "rejected": "Rechazado"
+      }
+    }
+  },
   "serviceOrders": {
     "title": "Órdenes de Servicio",
     "create": "Crear Orden de Servicio",
@@ -132,7 +256,7 @@
     "fillChecklist": "Rellenar Checklist",
     "viewChecklist": "Ver Checklist",
     "checklistModalTitle": "Checklist Preventivo para {equipmentName}",
-    "detailsModalTitle": "Detalles de Rehabilitación",
+    "photosModalTitle": "Fotos de Mantenimiento",
     "modalAddTitle": "Crear Nueva Orden de Servicio",
     "modalEditTitle": "Editar Orden de Servicio",
     "form": {
@@ -148,6 +272,8 @@
       "photos": "Fotos",
       "addPhotos": "Añadir Fotos",
       "photoPreviews": "Vista Previa de Fotos",
+      "failureMode": "Modo de Fallo",
+      "selectFailureMode": "Seleccione un modo de fallo...",
       "cancel": "Cancelar",
       "save": "Guardar Orden"
     },
@@ -159,7 +285,10 @@
       "assignedTeam": "Equipo",
       "scheduledDate": "Fecha Programada",
       "cost": "Costo",
-      "actions": "Acciones"
+      "actions": "Acciones",
+      "openedDate": "Fecha Apertura",
+      "closedDate": "Fecha Cierre",
+      "duration": "Duración (h)"
     },
     "filters": {
       "title": "Filtros",
@@ -230,6 +359,21 @@
     "modalAddTitle": "Añadir Nuevo Socio",
     "modalEditTitle": "Editar Socio",
     "noPartners": "No se encontraron socios. Haga clic en 'Añadir Socio' para empezar.",
+    "viewTabs": {
+      "list": "Vista de Lista",
+      "map": "Vista de Mapa"
+    },
+    "map": {
+      "filterByType": "Filtrar por tipo:",
+      "all": "Todos",
+      "findNearMe": "Buscar Cerca de Mí",
+      "searchingLocation": "Buscando su ubicación...",
+      "searchByClick": "Haga clic en el mapa para encontrar socios cercanos.",
+      "nearbyPartners": "Socios Cercanos",
+      "noNearby": "No se encontraron socios cerca de esta ubicación.",
+      "addressError": "No se pudo localizar la dirección. El socio se guardará sin datos de mapa.",
+      "geolocationError": "No se pudo obtener su ubicación. Por favor, compruebe los permisos del navegador."
+    },
     "headers": {
       "name": "Nombre",
       "type": "Tipo",
@@ -247,6 +391,48 @@
       "email": "Dirección de Correo",
       "address": "Dirección",
       "validateAddress": "Validar Dirección (abre Google Maps)"
+    }
+  },
+  "quotes": {
+    "title": "Gestión de Cotizaciones",
+    "add": "Nueva Solicitud",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "details": "Detalles",
+    "deleteConfirm": "¿Está seguro de que desea eliminar la solicitud \"{title}\"?",
+    "modalAddTitle": "Crear Nueva Solicitud de Cotización",
+    "modalEditTitle": "Editar Solicitud de Cotización",
+    "noQuotes": "No se encontraron solicitudes. Haga clic en 'Nueva Solicitud' para empezar.",
+    "form": {
+      "title": "Título / Asunto",
+      "partner": "Socio",
+      "selectPartner": "Seleccione un socio...",
+      "quoteType": "Tipo de Cotización",
+      "status": "Estado",
+      "description": "Descripción de la Solicitud",
+      "notes": "Notas / Respuesta del Socio",
+      "totalCost": "Costo Total",
+      "itemsTitle": "Ítems a Cotizar",
+      "addItem": "Añadir Ítem",
+      "itemDescription": "Descripción del Ítem",
+      "itemQuantity": "Cantidad",
+      "itemUnitPrice": "Precio Unitario",
+      "attachmentsTitle": "Adjuntos",
+      "addAttachment": "Añadir Adjunto",
+      "fileSizeError": "Archivo demasiado grande. Máx 5MB.",
+      "cancel": "Cancelar",
+      "saveDraft": "Guardar como Borrador",
+      "sendQuote": "Enviar Solicitud"
+    },
+    "headers": {
+      "id": "ID",
+      "title": "Título",
+      "partner": "Socio",
+      "type": "Tipo",
+      "status": "Estado",
+      "requestDate": "Fecha de Solicitud",
+      "totalCost": "Costo Total",
+      "actions": "Acciones"
     }
   },
   "team": {
@@ -342,6 +528,12 @@
       "Needs Repair": "Necesita Reparación",
       "Decommissioned": "Dado de Baja"
     },
+    "equipmentType": {
+      "Machinery": "Maquinaria",
+      "Tooling": "Herramientas",
+      "Automation": "Automatización",
+      "Body in White": "Body in White"
+    },
     "maintenanceType": {
       "Corrective": "Correctivo",
       "Preventive": "Preventivo",
@@ -359,6 +551,12 @@
       "Manager": "Gerente",
       "Technician": "Técnico"
     },
+    "instrumentStatus": {
+      "Active": "Activo",
+      "In Calibration": "En Calibración",
+      "Damaged": "Dañado",
+      "Retired": "Retirado"
+    },
     "preventiveMaintenanceSchedule": {
       "None": "Ninguno",
       "Monthly": "Mensual",
@@ -374,6 +572,17 @@
     "partnerType": {
       "Supplier": "Proveedor",
       "ServiceProvider": "Proveedor de Servicios"
+    },
+    "quoteStatus": {
+      "Draft": "Borrador",
+      "Sent": "Enviado",
+      "Answered": "Respondido",
+      "Approved": "Aprobado",
+      "Rejected": "Rechazado"
+    },
+    "quoteType": {
+      "Parts": "Piezas",
+      "Service": "Servicio"
     }
   }
 }

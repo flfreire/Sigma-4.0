@@ -126,6 +126,7 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
                         <option value="Machinery">{t('equipment.tabs.machinery')}</option>
                         <option value="Tooling">{t('equipment.tabs.tooling')}</option>
                         <option value="Automation">{t('equipment.form.automation')}</option>
+                        <option value="Body in White">{t('equipment.tabs.bodyInWhite')}</option>
                     </select>
                 </div>
                 <div>
