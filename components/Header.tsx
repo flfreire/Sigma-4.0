@@ -1,15 +1,20 @@
-
 import React, { useState } from 'react';
 import { useTranslation, LANGUAGES, Language } from '../i18n/config';
 import { useAuth } from '../contexts/AuthContext';
 import { Bars3Icon } from './icons';
+import NotificationBell from './NotificationBell';
+import { Notification } from '../types';
 
 interface HeaderProps {
   title: string;
   onMobileMenuToggle: () => void;
+  notifications: Notification[];
+  unreadCount: number;
+  onNotificationClick: (notification: Notification) => void;
+  onMarkAllAsRead: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, onMobileMenuToggle }) => {
+const Header: React.FC<HeaderProps> = ({ title, onMobileMenuToggle, notifications, unreadCount, onNotificationClick, onMarkAllAsRead }) => {
   const { t, language, setLanguage } = useTranslation();
   const { user, logout } = useAuth();
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -29,6 +34,13 @@ const Header: React.FC<HeaderProps> = ({ title, onMobileMenuToggle }) => {
       </div>
       <div className="flex items-center space-x-4">
         <span className="text-highlight hidden sm:inline">{t('header.welcomeUser', { name: user?.name || 'User' })}</span>
+        
+        <NotificationBell
+          notifications={notifications}
+          unreadCount={unreadCount}
+          onNotificationClick={onNotificationClick}
+          onMarkAllAsRead={onMarkAllAsRead}
+        />
         
         <div className="relative">
           <button 

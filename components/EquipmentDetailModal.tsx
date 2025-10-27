@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Equipment, EquipmentStatus, PreventiveMaintenanceSchedule, ChecklistTemplate, ReplacementPart, ProjectFile } from '../types';
 import { useTranslation } from '../i18n/config';
 import Modal from './Modal';
 import { PhotoIcon, PlusIcon, TrashIcon, DocumentIcon, EyeIcon, WrenchScrewdriverIcon, CubeIcon } from './icons';
+import { useAuth } from '../contexts/AuthContext';
 
 interface EquipmentDetailModalProps {
     isOpen: boolean;
@@ -11,6 +11,7 @@ interface EquipmentDetailModalProps {
     equipment: Equipment | null;
     addEquipment: (item: Omit<Equipment, 'id' | 'maintenanceHistory' | 'nextPreventiveMaintenanceDate'>) => Promise<void>;
     updateEquipment: (item: Equipment) => Promise<void>;
+    deleteEquipment: (id: string) => Promise<void>;
     checklistTemplates: ChecklistTemplate[];
     replacementParts: ReplacementPart[];
     addReplacementPart: (item: Omit<ReplacementPart, 'id'>) => Promise<void>;
@@ -20,8 +21,9 @@ interface EquipmentDetailModalProps {
 
 type ActiveTab = 'general' | 'parts' | 'drawings';
 
-const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onClose, equipment, addEquipment, updateEquipment, checklistTemplates, replacementParts, addReplacementPart, updateReplacementPart, deleteReplacementPart }) => {
+const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onClose, equipment, addEquipment, updateEquipment, deleteEquipment, checklistTemplates, replacementParts, addReplacementPart, updateReplacementPart, deleteReplacementPart }) => {
     const { t } = useTranslation();
+    const { hasActionPermission } = useAuth();
     const [activeTab, setActiveTab] = useState<ActiveTab>('general');
     
     const [formData, setFormData] = useState<Omit<Equipment, 'id' | 'maintenanceHistory'>>({
@@ -34,6 +36,7 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
     const isEditMode = equipment !== null;
+    const isReadOnly = isEditMode && !hasActionPermission('equipment:edit');
 
     useEffect(() => {
         if (equipment) {
@@ -81,12 +84,20 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
     };
 
     const handleSave = async () => {
+        if (isReadOnly && isEditMode) return;
         if (isEditMode) {
             await updateEquipment({ ...equipment, ...formData });
         } else {
             await addEquipment(formData);
         }
         onClose();
+    };
+
+    const handleDelete = async () => {
+        if (equipment && window.confirm(t('equipment.deleteConfirm', { name: equipment.name }))) {
+            await deleteEquipment(equipment.id);
+            onClose();
+        }
     };
     
     const renderGeneralTab = () => (
@@ -102,26 +113,30 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
                         </div>
                     )}
                     <div className="flex flex-col gap-2">
-                        <label htmlFor="photo-upload" className="cursor-pointer bg-accent text-light py-2 px-4 rounded-md hover:bg-highlight text-sm text-center transition-colors">
-                        {t('equipment.form.changePhoto')}
-                        </label>
-                        <input id="photo-upload" name="photo-upload" type="file" className="sr-only" accept="image/png, image/jpeg" onChange={handlePhotoChange} />
-                        {photoPreview && (
-                        <button type="button" onClick={handleRemovePhoto} className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 text-sm transition-colors">
-                            {t('equipment.form.removePhoto')}
-                        </button>
+                        {!isReadOnly && (
+                          <>
+                            <label htmlFor="photo-upload" className="cursor-pointer bg-accent text-light py-2 px-4 rounded-md hover:bg-highlight text-sm text-center transition-colors">
+                            {t('equipment.form.changePhoto')}
+                            </label>
+                            <input id="photo-upload" name="photo-upload" type="file" className="sr-only" accept="image/png, image/jpeg" onChange={handlePhotoChange} />
+                            {photoPreview && (
+                            <button type="button" onClick={handleRemovePhoto} className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 text-sm transition-colors">
+                                {t('equipment.form.removePhoto')}
+                            </button>
+                            )}
+                          </>
                         )}
                     </div>
                 </div>
             </div>
              <div>
                 <label className="block text-sm font-medium text-highlight">{t('equipment.form.name')}</label>
-                <input type="text" name="name" value={formData.name} onChange={handleChange} required className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2" />
+                <input type="text" name="name" value={formData.name} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                 <label className="block text-sm font-medium text-highlight">{t('equipment.form.type')}</label>
-                    <select name="type" value={formData.type} onChange={handleChange} required className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2">
+                    <select name="type" value={formData.type} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed">
                         <option value="" disabled>{t('equipment.form.selectType')}</option>
                         <option value="Machinery">{t('equipment.tabs.machinery')}</option>
                         <option value="Tooling">{t('equipment.tabs.tooling')}</option>
@@ -131,33 +146,33 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
                 </div>
                 <div>
                 <label className="block text-sm font-medium text-highlight">{t('equipment.form.location')}</label>
-                <input type="text" name="location" value={formData.location} onChange={handleChange} required className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2" />
+                <input type="text" name="location" value={formData.location} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                 <label className="block text-sm font-medium text-highlight">{t('equipment.form.manufacturer')}</label>
-                <input type="text" name="manufacturer" value={formData.manufacturer} onChange={handleChange} required className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2" />
+                <input type="text" name="manufacturer" value={formData.manufacturer} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
                 </div>
                 <div>
                 <label className="block text-sm font-medium text-highlight">{t('equipment.form.model')}</label>
-                <input type="text" name="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2" />
+                <input type="text" name="model" value={formData.model} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                 <label className="block text-sm font-medium text-highlight">{t('equipment.form.installDate')}</label>
-                <input type="date" name="installDate" value={formData.installDate} onChange={handleChange} required className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2" />
+                <input type="date" name="installDate" value={formData.installDate} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
                 </div>
                 <div>
                 <label className="block text-sm font-medium text-highlight">{t('equipment.form.usageHours')}</label>
-                <input type="number" name="usageHours" value={formData.usageHours} onChange={handleChange} required className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2" />
+                <input type="number" name="usageHours" value={formData.usageHours} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                 <label className="block text-sm font-medium text-highlight">{t('equipment.form.preventiveSchedule')}</label>
-                <select name="preventiveSchedule" value={formData.preventiveSchedule} onChange={handleChange} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2">
+                <select name="preventiveSchedule" value={formData.preventiveSchedule} onChange={handleChange} disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed">
                     {Object.values(PreventiveMaintenanceSchedule).map(schedule => (
                         <option key={schedule} value={schedule}>{t(`enums.preventiveMaintenanceSchedule.${schedule}`)}</option>
                     ))}
@@ -165,7 +180,7 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-highlight">{t('equipment.form.checklistTemplate')}</label>
-                    <select name="checklistTemplateId" value={formData.checklistTemplateId} onChange={handleChange} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2">
+                    <select name="checklistTemplateId" value={formData.checklistTemplateId} onChange={handleChange} disabled={isReadOnly} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed">
                         <option value="">{t('equipment.form.noChecklist')}</option>
                         {checklistTemplates.map(template => (
                             <option key={template.id} value={template.id}>{template.name}</option>
@@ -183,6 +198,7 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
             addPart={addReplacementPart}
             updatePart={updateReplacementPart}
             deletePart={deleteReplacementPart}
+            isReadOnly={isReadOnly}
         />
     );
     
@@ -190,6 +206,7 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
         <DrawingsManager 
             files={formData.projectFiles || []}
             onFileChange={(newFiles) => setFormData(prev => ({...prev, projectFiles: newFiles}))}
+            isReadOnly={isReadOnly}
         />
     );
 
@@ -226,9 +243,19 @@ const EquipmentDetailModal: React.FC<EquipmentDetailModalProps> = ({ isOpen, onC
                     {activeTab === 'drawings' && renderDrawingsTab()}
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-4 border-t border-accent mt-auto">
-                    <button type="button" onClick={onClose} className="bg-accent text-light py-2 px-4 rounded-md hover:bg-highlight">{t('equipment.form.cancel')}</button>
-                    <button type="button" onClick={handleSave} className="bg-brand text-white font-bold py-2 px-6 rounded-md hover:bg-blue-600">{t('equipment.form.save')}</button>
+                <div className="flex justify-between items-center pt-4 border-t border-accent mt-auto">
+                    <div>
+                         {isEditMode && hasActionPermission('equipment:delete') && (
+                            <button type="button" onClick={handleDelete} className="bg-red-600 text-white font-bold py-2 px-4 rounded-md hover:bg-red-700 flex items-center">
+                                <TrashIcon className="h-5 w-5 mr-2" />
+                                {t('equipment.delete')}
+                            </button>
+                        )}
+                    </div>
+                    <div className="flex space-x-3">
+                        <button type="button" onClick={onClose} className="bg-accent text-light py-2 px-4 rounded-md hover:bg-highlight">{t('equipment.form.cancel')}</button>
+                        {!isReadOnly && <button type="button" onClick={handleSave} className="bg-brand text-white font-bold py-2 px-6 rounded-md hover:bg-blue-600">{t('equipment.form.save')}</button>}
+                    </div>
                 </div>
             </div>
         </Modal>
@@ -241,7 +268,8 @@ const PartsManager: React.FC<{
     addPart: (item: Omit<ReplacementPart, 'id'>) => Promise<void>;
     updatePart: (item: ReplacementPart) => Promise<void>;
     deletePart: (id: string) => Promise<void>;
-}> = ({ equipment, parts, addPart, updatePart, deletePart }) => {
+    isReadOnly: boolean;
+}> = ({ equipment, parts, addPart, updatePart, deletePart, isReadOnly }) => {
     const { t } = useTranslation();
     const [editingPart, setEditingPart] = useState<ReplacementPart | 'new' | null>(null);
 
@@ -270,15 +298,18 @@ const PartsManager: React.FC<{
                     onSubmit={handleSavePart}
                     onClose={() => setEditingPart(null)}
                     initialData={editingPart === 'new' ? null : editingPart}
+                    isReadOnly={isReadOnly}
                 />
             ) : (
                 <>
-                    <div className="flex justify-end mb-4">
-                        <button onClick={() => setEditingPart('new')} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
-                            <PlusIcon className="h-5 w-5 mr-2" />
-                            {t('equipment.parts.add')}
-                        </button>
-                    </div>
+                    {!isReadOnly && (
+                        <div className="flex justify-end mb-4">
+                            <button onClick={() => setEditingPart('new')} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
+                                <PlusIcon className="h-5 w-5 mr-2" />
+                                {t('equipment.parts.add')}
+                            </button>
+                        </div>
+                    )}
                     <div className="bg-primary rounded-lg shadow-md border border-accent overflow-x-auto">
                         <table className="min-w-full divide-y divide-accent">
                             <thead className="bg-secondary">
@@ -296,8 +327,8 @@ const PartsManager: React.FC<{
                                         <td className="px-4 py-2 whitespace-nowrap text-sm text-highlight">{part.code}</td>
                                         <td className="px-4 py-2 whitespace-nowrap text-sm text-highlight">{part.stockQuantity}</td>
                                         <td className="px-4 py-2 whitespace-nowrap text-sm font-medium space-x-2">
-                                            <button onClick={() => setEditingPart(part)} className="text-brand hover:text-blue-400">{t('equipment.details')}</button>
-                                            <button onClick={() => handleDeletePart(part.id)} className="text-red-500 hover:text-red-400"><TrashIcon className="h-4 w-4 inline"/></button>
+                                            <button onClick={() => setEditingPart(part)} className="text-brand hover:text-blue-400">{isReadOnly ? t('equipment.drawings.view') : t('equipment.details')}</button>
+                                            {!isReadOnly && <button onClick={() => handleDeletePart(part.id)} className="text-red-500 hover:text-red-400"><TrashIcon className="h-4 w-4 inline"/></button>}
                                         </td>
                                     </tr>
                                 )) : (
@@ -321,7 +352,8 @@ const ReplacementPartForm: React.FC<{
     onClose: () => void;
     equipmentId: string;
     initialData?: ReplacementPart | null;
-}> = ({ onSubmit, onClose, equipmentId, initialData }) => {
+    isReadOnly: boolean;
+}> = ({ onSubmit, onClose, equipmentId, initialData, isReadOnly }) => {
     const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: initialData?.name || '', code: initialData?.code || '',
@@ -345,22 +377,22 @@ const ReplacementPartForm: React.FC<{
             <div className="p-4 space-y-4">
                 <div>
                     <label className="block text-sm font-medium text-highlight">{t('equipment.parts.form.name')}</label>
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} required className="mt-1 block w-full bg-secondary border-accent rounded-md shadow-sm p-2" />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-secondary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-highlight">{t('equipment.parts.form.code')}</label>
-                        <input type="text" name="code" value={formData.code} onChange={handleChange} required className="mt-1 block w-full bg-secondary border-accent rounded-md shadow-sm p-2" />
+                        <input type="text" name="code" value={formData.code} onChange={handleChange} required disabled={isReadOnly} className="mt-1 block w-full bg-secondary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-highlight">{t('equipment.parts.form.stockQuantity')}</label>
-                        <input type="number" name="stockQuantity" value={formData.stockQuantity} onChange={handleChange} min="0" required className="mt-1 block w-full bg-secondary border-accent rounded-md shadow-sm p-2" />
+                        <input type="number" name="stockQuantity" value={formData.stockQuantity} onChange={handleChange} min="0" required disabled={isReadOnly} className="mt-1 block w-full bg-secondary border-accent rounded-md shadow-sm p-2 disabled:opacity-70 disabled:cursor-not-allowed" />
                     </div>
                 </div>
             </div>
             <div className="flex justify-end space-x-3 p-4 border-t border-accent">
                 <button type="button" onClick={onClose} className="bg-accent text-light py-2 px-4 rounded-md hover:bg-highlight">{t('equipment.form.cancel')}</button>
-                <button type="submit" className="bg-brand text-white py-2 px-4 rounded-md hover:bg-blue-600">{t('equipment.form.save')}</button>
+                {!isReadOnly && <button type="submit" className="bg-brand text-white py-2 px-4 rounded-md hover:bg-blue-600">{t('equipment.form.save')}</button>}
             </div>
         </form>
     );
@@ -369,7 +401,8 @@ const ReplacementPartForm: React.FC<{
 const DrawingsManager: React.FC<{
     files: ProjectFile[],
     onFileChange: (files: ProjectFile[]) => void;
-}> = ({ files, onFileChange }) => {
+    isReadOnly: boolean;
+}> = ({ files, onFileChange, isReadOnly }) => {
     const { t } = useTranslation();
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -403,13 +436,15 @@ const DrawingsManager: React.FC<{
     
     return (
         <div>
-            <div className="flex justify-end mb-4">
-                 <input type="file" ref={fileInputRef} onChange={handleFileAdd} className="hidden" accept="image/jpeg,image/png,application/pdf" />
-                <button onClick={() => fileInputRef.current?.click()} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
-                    <PlusIcon className="h-5 w-5 mr-2" />
-                    {t('equipment.drawings.add')}
-                </button>
-            </div>
+            {!isReadOnly && (
+                <div className="flex justify-end mb-4">
+                    <input type="file" ref={fileInputRef} onChange={handleFileAdd} className="hidden" accept="image/jpeg,image/png,application/pdf" />
+                    <button onClick={() => fileInputRef.current?.click()} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
+                        <PlusIcon className="h-5 w-5 mr-2" />
+                        {t('equipment.drawings.add')}
+                    </button>
+                </div>
+            )}
             
             {files.length === 0 ? (
                 <div className="text-center py-12 bg-primary rounded-lg border-2 border-dashed border-accent">
@@ -431,9 +466,11 @@ const DrawingsManager: React.FC<{
                                 <a href={file.data} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-500" title={t('equipment.drawings.view')}>
                                     <EyeIcon className="h-6 w-6" />
                                 </a>
-                                <button onClick={() => handleFileDelete(file.id)} className="p-2 rounded-full bg-red-600 text-white hover:bg-red-500" title={t('checklists.delete')}>
-                                    <TrashIcon className="h-6 w-6" />
-                                </button>
+                                {!isReadOnly && (
+                                    <button onClick={() => handleFileDelete(file.id)} className="p-2 rounded-full bg-red-600 text-white hover:bg-red-500" title={t('checklists.delete')}>
+                                        <TrashIcon className="h-6 w-6" />
+                                    </button>
+                                )}
                            </div>
                         </div>
                     ))}

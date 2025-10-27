@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { dbService } from '../services/dbService';
-import { Equipment, ServiceOrder, EquipmentStatus, MaintenanceType, ServiceOrderStatus, User, Team, ChatMessage, UserRole, PreventiveMaintenanceSchedule, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution, PartnerType, FailureMode, Quote, QuoteStatus, QuoteType, MeasurementInstrument, InstrumentStatus } from '../types';
+import { Equipment, ServiceOrder, EquipmentStatus, MaintenanceType, ServiceOrderStatus, User, Team, ChatMessage, UserRole, PreventiveMaintenanceSchedule, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution, PartnerType, FailureMode, Quote, QuoteStatus, QuoteType, MeasurementInstrument, InstrumentStatus, ServiceCategory } from '../types';
 import { DEFAULT_PERMISSIONS } from '../constants/permissions';
 import { useTranslation } from '../i18n/config';
 
@@ -194,17 +194,28 @@ const initialReplacementParts: ReplacementPart[] = [
     { id: 'RP-004', equipmentId: 'INJ-HAITIAN-05', name: 'Bico de Injeção', code: 'HAITIAN-NOZ-050', stockQuantity: 52, supplier: 'WeldSupply Direct' },
 ];
 
+const initialServiceCategories: ServiceCategory[] = [
+  { id: 'sc-1', name: 'Manutenção elétrica' },
+  { id: 'sc-2', name: 'Usinagem' },
+  { id: 'sc-3', name: 'Calibração de instrumentos' },
+  { id: 'sc-4', name: 'Transporte logístico' },
+  { id: 'sc-5', name: 'Consultoria técnica' },
+  { id: 'sc-6', name: 'Automação Industrial' },
+];
+
 const initialPartners: Partner[] = [
     {
       id: 'P-SP-001',
       name: 'TRUMPF Ferramentas Elétricas',
-      type: PartnerType.Supplier,
+      type: PartnerType.ServiceProvider,
       contactPerson: 'Departamento de Vendas',
       phone: '(15) 3416-2900',
       email: 'vendas@br.trumpf.com',
       address: 'Av. Dr. Léo de Affonseca, 60 - Parque Tecnologico, Sorocaba - SP, 18087-160',
       latitude: -23.4430,
-      longitude: -47.3915
+      longitude: -47.3915,
+      serviceCategoryIds: ['sc-2', 'sc-5'],
+      notes: 'Fornecedor preferencial para ferramentas de corte e dobra. Contrato com desconto de 15% em vigor até 2025.'
     },
     {
       id: 'P-SP-002',
@@ -215,7 +226,9 @@ const initialPartners: Partner[] = [
       email: 'vendas@romi.com',
       address: 'Rod. SP 304, km 141,5, Santa Bárbara d\'Oeste - SP, 13453-900',
       latitude: -22.7448,
-      longitude: -47.3887
+      longitude: -47.3887,
+      serviceCategoryIds: ['sc-2', 'sc-6'],
+      notes: 'Especialista em centros de usinagem CNC. Suporte técnico rápido.'
     },
     {
       id: 'P-SP-003',
@@ -226,7 +239,8 @@ const initialPartners: Partner[] = [
       email: 'br.coromant@sandvik.com',
       address: 'Av. das Nações Unidas, 21735 - Jurubatuba, São Paulo - SP, 04795-100',
       latitude: -23.6676,
-      longitude: -46.7262
+      longitude: -46.7262,
+      serviceCategoryIds: ['sc-2']
     },
     {
       id: 'P-SP-004',
@@ -237,18 +251,20 @@ const initialPartners: Partner[] = [
       email: 'comunicacao.skf@skf.com',
       address: 'Rod. Anhanguera, Km 30.5 s/n - Pirituba, São Paulo - SP, 05275-000',
       latitude: -23.4542,
-      longitude: -46.7601
+      longitude: -46.7601,
+      serviceCategoryIds: ['sc-5']
     },
     {
       id: 'P-SP-005',
       name: 'Atlas Copco Brasil',
-      type: PartnerType.Supplier,
+      type: PartnerType.ServiceProvider,
       contactPerson: 'Vendas e Serviços',
       phone: '(11) 3478-8700',
       email: 'contato@br.atlascopco.com',
       address: 'Alameda Araguaia, 2700 - Tamboré, Barueri - SP, 06455-000',
       latitude: -23.5042,
-      longitude: -46.8488
+      longitude: -46.8488,
+      serviceCategoryIds: ['sc-1', 'sc-6']
     },
 ];
 
@@ -318,6 +334,7 @@ export const useDbData = (userId?: string) => {
   const [failureModes, setFailureModes] = useState<FailureMode[]>([]);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [measurementInstruments, setMeasurementInstruments] = useState<MeasurementInstrument[]>([]);
+  const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
   
@@ -362,7 +379,7 @@ export const useDbData = (userId?: string) => {
     try {
         await dbService.openDb();
 
-        const [existingEquipment, existingOrders, existingUsers, existingTeams, existingParts, existingPartners, existingTemplates, existingExecutions, existingFailureModes, existingQuotes, existingInstruments] = await Promise.all([
+        const [existingEquipment, existingOrders, existingUsers, existingTeams, existingParts, existingPartners, existingTemplates, existingExecutions, existingFailureModes, existingQuotes, existingInstruments, existingServiceCategories] = await Promise.all([
             dbService.getAllEquipment(),
             dbService.getAllServiceOrders(),
             dbService.getAllUsers(),
@@ -374,6 +391,7 @@ export const useDbData = (userId?: string) => {
             dbService.getAllFailureModes(),
             dbService.getAllQuotes(),
             dbService.getAllMeasurementInstruments(),
+            dbService.getAllServiceCategories(),
         ]);
 
         if (existingEquipment.length === 0) {
@@ -437,6 +455,13 @@ export const useDbData = (userId?: string) => {
             setQuotes(initialQuotes);
         } else {
             setQuotes(existingQuotes);
+        }
+
+        if (existingServiceCategories.length === 0) {
+            await Promise.all(initialServiceCategories.map(sc => dbService.addServiceCategory(sc)));
+            setServiceCategories(initialServiceCategories);
+        } else {
+            setServiceCategories(existingServiceCategories);
         }
         
         setUsers(existingUsers);
@@ -515,6 +540,18 @@ export const useDbData = (userId?: string) => {
      await dbService.updateEquipment(updatedItem);
      setEquipment(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
   };
+
+    const deleteEquipment = async (id: string) => {
+        await dbService.deleteEquipment(id);
+        setEquipment(prev => prev.filter(e => e.id !== id));
+
+        // Also delete associated replacement parts for data integrity
+        const partsToDelete = replacementParts.filter(p => p.equipmentId === id);
+        if (partsToDelete.length > 0) {
+            await Promise.all(partsToDelete.map(p => dbService.deleteReplacementPart(p.id)));
+            setReplacementParts(prev => prev.filter(p => p.equipmentId !== id));
+        }
+    };
   
   const getEquipmentById = (id: string) => {
     return equipment.find(e => e.id === id);
@@ -616,14 +653,14 @@ export const useDbData = (userId?: string) => {
 
   // Measurement Instruments Management
     const addMeasurementInstrument = async (item: Omit<MeasurementInstrument, 'id'>) => {
-        const newItem = { ...item };
+        const newItem = { ...item, id: `INST-${Date.now()}` } as MeasurementInstrument;
         if (newItem.lastCalibrationDate && newItem.calibrationIntervalMonths > 0) {
             const lastCalDate = new Date(newItem.lastCalibrationDate + 'T00:00:00');
             lastCalDate.setMonth(lastCalDate.getMonth() + newItem.calibrationIntervalMonths);
             newItem.nextCalibrationDate = lastCalDate.toISOString().split('T')[0];
         }
-        await dbService.addMeasurementInstrument(newItem as MeasurementInstrument);
-        setMeasurementInstruments(prev => [...prev, newItem as MeasurementInstrument]);
+        await dbService.addMeasurementInstrument(newItem);
+        setMeasurementInstruments(prev => [...prev, newItem]);
     };
     
     const updateMeasurementInstrument = async (updatedItem: MeasurementInstrument) => {
@@ -773,6 +810,7 @@ export const useDbData = (userId?: string) => {
     let memberId: string;
 
     if (!member) {
+        const { views, actions } = DEFAULT_PERMISSIONS[UserRole.Technician];
         // User does not exist, create a new one.
         const newUser: User = {
             id: `user-${Date.now()}`,
@@ -781,7 +819,8 @@ export const useDbData = (userId?: string) => {
             password: 'TEMPORARY_PASSWORD', // placeholder password
             teamId: team.id,
             role: UserRole.Technician,
-            permissions: DEFAULT_PERMISSIONS[UserRole.Technician]
+            permissions: views,
+            actionPermissions: actions,
         };
         await dbService.addUser(newUser);
         setUsers(prev => [...prev, newUser]);
@@ -806,9 +845,10 @@ export const useDbData = (userId?: string) => {
 
     const member = await dbService.getUserById(memberId);
     if (member) {
-        const { teamId, ...rest } = member;
-        await dbService.updateUser(rest);
-        setUsers(prev => prev.map(u => u.id === memberId ? rest : u));
+        const updatedMember: User = { ...member };
+        delete updatedMember.teamId;
+        await dbService.updateUser(updatedMember);
+        setUsers(prev => prev.map(u => u.id === memberId ? updatedMember : u));
     }
   };
 
@@ -877,7 +917,7 @@ export const useDbData = (userId?: string) => {
 
   // Checklist Management
     const addChecklistTemplate = async (template: Omit<ChecklistTemplate, 'id'>) => {
-        const newTemplate = { ...template, id: `ct-${Date.now()}` };
+        const newTemplate = { ...template, id: `ct-${Date.now()}` } as ChecklistTemplate;
         await dbService.addChecklistTemplate(newTemplate);
         setChecklistTemplates(prev => [...prev, newTemplate]);
     };
@@ -888,10 +928,10 @@ export const useDbData = (userId?: string) => {
     };
     
     const deleteChecklistTemplate = async (id: string) => {
-        // First, check if any equipment uses this template
-        const isUsed = equipment.some(e => e.checklistTemplateId === id);
-        if (isUsed) {
-            alert("This template cannot be deleted because it is currently assigned to one or more pieces of equipment.");
+        const isUsedOnEquipment = equipment.some(e => e.checklistTemplateId === id);
+        const isUsedOnInstrument = measurementInstruments.some(i => i.checklistTemplateId === id);
+        if (isUsedOnEquipment || isUsedOnInstrument) {
+            alert(t('checklists.deleteInUseConfirm'));
             return;
         }
         await dbService.deleteChecklistTemplate(id);
@@ -951,6 +991,28 @@ export const useDbData = (userId?: string) => {
         setQuotes(prev => prev.filter(item => item.id !== id));
     };
 
+  // Service Category Management
+    const addServiceCategory = async (item: Omit<ServiceCategory, 'id'>) => {
+        const newItem: ServiceCategory = { ...item, id: `sc-${Date.now()}` };
+        await dbService.addServiceCategory(newItem);
+        setServiceCategories(prev => [...prev, newItem]);
+    };
+
+    const updateServiceCategory = async (updatedItem: ServiceCategory) => {
+        await dbService.updateServiceCategory(updatedItem);
+        setServiceCategories(prev => prev.map(item => item.id === updatedItem.id ? updatedItem : item));
+    };
+
+    const deleteServiceCategory = async (id: string) => {
+        const isUsed = partners.some(p => p.serviceCategoryIds?.includes(id));
+        if (isUsed) {
+            alert("This category cannot be deleted as it is assigned to one or more partners.");
+            return;
+        }
+        await dbService.deleteServiceCategory(id);
+        setServiceCategories(prev => prev.filter(item => item.id !== id));
+    };
+
   return { 
     equipment, 
     serviceOrders, 
@@ -964,9 +1026,11 @@ export const useDbData = (userId?: string) => {
     failureModes,
     quotes,
     measurementInstruments,
+    serviceCategories,
     isLoading,
     addEquipment, 
-    updateEquipment, 
+    updateEquipment,
+    deleteEquipment,
     addServiceOrder, 
     updateServiceOrder, 
     addReplacementPart,
@@ -997,5 +1061,8 @@ export const useDbData = (userId?: string) => {
     addMeasurementInstrument,
     updateMeasurementInstrument,
     deleteMeasurementInstrument,
+    addServiceCategory,
+    updateServiceCategory,
+    deleteServiceCategory,
   };
 };

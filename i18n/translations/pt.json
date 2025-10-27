@@ -1,4 +1,3 @@
-
 {
   "header": {
     "welcome": "Bem-vindo, Admin",
@@ -12,11 +11,8 @@
     "service-orders": "Ordens de Serviço",
     "assistant": "Assistente de IA",
     "preventive-maintenance": "Manut. Preventiva",
-    "checklists": "Checklists",
     "analysis": "Análise",
-    "failure-modes": "Modos de Falha",
     "partners": "Parceiros",
-    "quotes": "Orçamentos",
     "users": "Usuários",
     "teamManagement": "Equipe",
     "user-management": "Gestão",
@@ -30,15 +26,12 @@
     "service-orders": "Gerenciamento de Ordens de Serviço",
     "assistant": "Assistente Preditivo IA",
     "preventive-maintenance": "Calendário de Manutenção Preventiva",
-    "checklists": "Modelos de Checklist",
     "partners": "Gestão de Parceiros",
-    "quotes": "Gestão de Orçamentos",
     "users": "Diretório de Usuários",
-    "team": "Gerenciamento de Equipe",
+    "team": "Gestão de Equipe",
     "user-management": "Gestão de Usuários e Equipes",
     "chat": "Bate-papo da Equipe",
-    "analysis": "Análise de Confiabilidade",
-    "failure-modes": "Gestão de Modos de Falha"
+    "analysis": "Análise de Confiabilidade"
   },
   "dashboard": {
     "totalEquipment": "Total de Equipamentos",
@@ -102,9 +95,11 @@
     }
   },
   "equipment": {
-    "title": "Lista Mestra de Equipamentos",
+    "title": "Gerenciamento de Equipamentos",
     "add": "Adicionar Equipamento",
     "details": "Detalhes",
+    "delete": "Excluir Equipamento",
+    "deleteConfirm": "Tem certeza de que deseja excluir o equipamento \"{name}\"? Esta ação é irreversível e também removerá suas peças de reposição associadas.",
     "modalAddTitle": "Adicionar Novo Equipamento",
     "modalEditTitle": "Editar Equipamento",
     "autoScheduled": "Agendado automaticamente: {schedule}",
@@ -112,6 +107,10 @@
     "qrCode": "QR Code",
     "modalQrTitle": "QR Code para {name}",
     "print": "Imprimir",
+    "mainTabs": {
+      "list": "Lista de Equipamentos",
+      "checklists": "Modelos de Checklist"
+    },
     "tabs": {
       "all": "Todos",
       "machinery": "Máquinas",
@@ -187,18 +186,25 @@
       "general": "Informações Gerais",
       "calibration": "Histórico de Calibração",
       "list": "Lista",
-      "analysis": "Análise"
+      "analysis": "Análise",
+      "checklists": "Modelos de Checklist"
     },
     "analysis": {
       "byTypeTitle": "Instrumentos por Tipo",
+      "byLocationTitle": "Instrumentos por Localização",
       "byStatusTitle": "Resumo de Status de Calibração",
+      "settings": {
+        "title": "Configurações de Alerta",
+        "dueSoonDays": "Alertar para calibração vencendo em:",
+        "days": "dias"
+      },
       "status": {
-        "ok": "Calibrado",
-        "dueSoon": "Vencendo (30d)",
-        "overdue": "Vencido",
-        "inCalibration": "Em Calibração",
-        "damaged": "Danificado",
-        "retired": "Retirado"
+        "calibrated": "Calibrados",
+        "pendingShipment": "Pendente de Envio",
+        "overdue": "Vencidos",
+        "inCalibration": "Em processo de calibração",
+        "damaged": "Danificados",
+        "retired": "Retirados de uso"
       }
     },
     "headers": {
@@ -222,6 +228,8 @@
       "location": "Localização",
       "calibrationInterval": "Intervalo de Calibração (Meses)",
       "lastCalibrationDate": "Data da Última Calibração",
+      "checklistTemplate": "Modelo de Checklist",
+      "noChecklist": "Nenhum Checklist",
       "cancel": "Cancelar",
       "save": "Salvar"
     },
@@ -259,6 +267,10 @@
     "photosModalTitle": "Fotos da Manutenção",
     "modalAddTitle": "Criar Nova Ordem de Serviço",
     "modalEditTitle": "Editar Ordem de Serviço",
+    "tabs": {
+      "orders": "Ordens de Serviço",
+      "failureModes": "Modos de Falha"
+    },
     "form": {
       "equipment": "Equipamento",
       "selectEquipment": "Selecione o Equipamento",
@@ -282,7 +294,7 @@
       "equipment": "Equipamento",
       "type": "Tipo",
       "status": "Status",
-      "assignedTeam": "Equipe",
+      "assignedTeam": "Equipe Responsável",
       "scheduledDate": "Data Agendada",
       "cost": "Custo",
       "actions": "Ações",
@@ -303,11 +315,13 @@
     }
   },
    "checklists": {
-    "title": "Modelos de Checklist",
+    "title": "Modelos de Checklist de Equipamentos",
+    "metrologyTitle": "Modelos de Checklist de Metrologia",
     "add": "Novo Modelo",
     "edit": "Editar",
     "delete": "Excluir",
     "deleteConfirm": "Tem certeza que deseja excluir o modelo \"{name}\"? Esta ação não pode ser desfeita.",
+    "deleteInUseConfirm": "Este modelo não pode ser excluído pois está atualmente atribuído a um ou mais equipamentos ou instrumentos.",
     "modalAddTitle": "Criar Novo Modelo de Checklist",
     "modalEditTitle": "Editar Modelo de Checklist",
     "noTemplates": "Nenhum modelo de checklist criado. Clique em 'Novo Modelo' para começar.",
@@ -317,6 +331,10 @@
       "addItem": "Adicionar Item",
       "itemText": "Descrição do Item",
       "itemType": "Tipo de Resposta",
+      "addPhoto": "Adicionar Foto",
+      "removePhoto": "Remover Foto",
+      "viewExamplePhoto": "Ver Foto de Exemplo",
+      "examplePhotoModalTitle": "Foto de Exemplo",
       "cancel": "Cancelar",
       "save": "Salvar Modelo"
     }
@@ -359,12 +377,18 @@
     "modalAddTitle": "Adicionar Novo Parceiro",
     "modalEditTitle": "Editar Parceiro",
     "noPartners": "Nenhum parceiro encontrado. Clique em 'Adicionar Parceiro' para começar.",
+    "tabs": {
+      "partners": "Parceiros",
+      "categories": "Categorias de Serviço",
+      "quotes": "Orçamentos"
+    },
     "viewTabs": {
       "list": "Visão de Lista",
       "map": "Visão de Mapa"
     },
     "map": {
       "filterByType": "Filtrar por tipo:",
+      "filterByCategory": "Filtrar por categoria:",
       "all": "Todos",
       "findNearMe": "Achar Perto de Mim",
       "searchingLocation": "Buscando sua localização...",
@@ -386,11 +410,31 @@
     "form": {
       "name": "Nome do Parceiro",
       "type": "Tipo de Parceiro",
+      "serviceCategories": "Categorias de Serviço",
+      "selectCategoriesPlaceholder": "Selecione uma ou mais categorias...",
+      "addCategory": "Adicionar Categoria",
       "contactPerson": "Pessoa de Contato",
       "phone": "Número de Telefone",
       "email": "Endereço de Email",
       "address": "Endereço",
-      "validateAddress": "Validar Endereço (abre Google Maps)"
+      "validateAddress": "Validar Endereço (abre Google Maps)",
+      "notes": "Mais Informações",
+      "notesPlaceholder": "Insira qualquer informação adicional aqui..."
+    }
+  },
+  "serviceCategories": {
+    "title": "Gestão de Categorias de Serviço",
+    "add": "Nova Categoria",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "deleteConfirm": "Tem certeza que deseja excluir a categoria \"{name}\"? Esta ação não pode ser desfeita.",
+    "modalAddTitle": "Criar Nova Categoria de Serviço",
+    "modalEditTitle": "Editar Categoria de Serviço",
+    "noCategories": "Nenhuma categoria de serviço criada. Clique em 'Nova Categoria' para começar.",
+    "form": {
+      "name": "Nome da Categoria",
+      "cancel": "Cancelar",
+      "save": "Salvar Categoria"
     }
   },
   "quotes": {
@@ -433,6 +477,21 @@
       "requestDate": "Data da Solicitação",
       "totalCost": "Custo Total",
       "actions": "Ações"
+    }
+  },
+  "notifications": {
+    "title": "Notificações",
+    "markAllAsRead": "Marcar todas como lidas",
+    "noNew": "Nenhuma nova notificação",
+    "calibrationDue": "Calibração Próxima",
+    "calibrationOverdue": "Calibração Vencida",
+    "maintenanceDue": "Manutenção Preventiva Próxima",
+    "recurringFailure": "Alerta de Falha Recorrente",
+    "message": {
+      "calibrationDue": "Instrumento {name} ({id}) precisa ser calibrado até {date}.",
+      "calibrationOverdue": "A calibração do instrumento {name} ({id}) venceu em {date}.",
+      "maintenanceDue": "A manutenção preventiva de {name} ({id}) está agendada para {date}.",
+      "recurringFailure": "{name} ({id}) teve {count} falhas nos últimos 3 meses."
     }
   },
   "team": {
@@ -488,7 +547,13 @@
       "passwordHelp": "Deixe em branco para manter a senha atual.",
       "role": "Função",
       "team": "Equipe",
-      "permissions": "Permissões",
+      "permissions": "Permissões de Visualização",
+      "actionPermissions": "Permissões de Ação",
+      "actions": {
+        "equipment:create": "Criar Equipamento",
+        "equipment:edit": "Editar Equipamento",
+        "equipment:delete": "Excluir Equipamento"
+      },
       "cancel": "Cancelar",
       "save": "Salvar Usuário"
     }
@@ -524,8 +589,8 @@
   "enums": {
     "equipmentStatus": {
       "Operational": "Operacional",
-      "In Maintenance": "Em Manutenção",
-      "Needs Repair": "Requer Reparo",
+      "InMaintenance": "Em Manutenção",
+      "NeedsRepair": "Necessita de Reparo",
       "Decommissioned": "Descomissionado"
     },
     "equipmentType": {
@@ -566,12 +631,12 @@
       "Annual": "Anual"
     },
     "checklistItemType": {
-        "OK_NOT_OK": "OK / Não OK",
-        "NUMERIC": "Valor Numérico"
+        "OK / NOT OK": "Item OK / Não OK",
+        "Numeric": "Item Numérico"
     },
     "partnerType": {
       "Supplier": "Fornecedor",
-      "ServiceProvider": "Prestador de Serviço"
+      "Service Provider": "Prestador de Serviço"
     },
     "quoteStatus": {
       "Draft": "Rascunho",

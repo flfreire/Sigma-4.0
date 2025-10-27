@@ -1,4 +1,3 @@
-
 {
   "header": {
     "welcome": "Welcome, Admin",
@@ -12,11 +11,8 @@
     "service-orders": "Service Orders",
     "assistant": "AI Assistant",
     "preventive-maintenance": "Preventive Maint.",
-    "checklists": "Checklists",
     "analysis": "Analysis",
-    "failure-modes": "Failure Modes",
     "partners": "Partners",
-    "quotes": "Quotes",
     "users": "Users",
     "teamManagement": "Team",
     "user-management": "Management",
@@ -30,15 +26,12 @@
     "service-orders": "Service Order Management",
     "assistant": "AI Predictive Assistant",
     "preventive-maintenance": "Preventive Maintenance Calendar",
-    "checklists": "Checklist Templates",
     "partners": "Partner Management",
-    "quotes": "Quote Management",
     "users": "User Directory",
     "team": "Team Management",
     "user-management": "User & Team Management",
     "chat": "Team Chat",
-    "analysis": "Reliability Analysis",
-    "failure-modes": "Failure Mode Management"
+    "analysis": "Reliability Analysis"
   },
   "dashboard": {
     "totalEquipment": "Total Equipment",
@@ -102,9 +95,11 @@
     }
   },
   "equipment": {
-    "title": "Equipment Master List",
+    "title": "Equipment Management",
     "add": "Add Equipment",
     "details": "Details",
+    "delete": "Delete Equipment",
+    "deleteConfirm": "Are you sure you want to delete the equipment \"{name}\"? This action is irreversible and will also remove its associated replacement parts.",
     "modalAddTitle": "Add New Equipment",
     "modalEditTitle": "Edit Equipment",
     "autoScheduled": "Automatically scheduled: {schedule}",
@@ -112,6 +107,10 @@
     "qrCode": "QR Code",
     "modalQrTitle": "QR Code for {name}",
     "print": "Print",
+    "mainTabs": {
+      "list": "Equipment List",
+      "checklists": "Checklist Templates"
+    },
     "tabs": {
       "all": "All",
       "machinery": "Machinery",
@@ -187,14 +186,21 @@
       "general": "General Info",
       "calibration": "Calibration History",
       "list": "List",
-      "analysis": "Analysis"
+      "analysis": "Analysis",
+      "checklists": "Checklist Templates"
     },
     "analysis": {
       "byTypeTitle": "Instruments by Type",
+      "byLocationTitle": "Instruments by Location",
       "byStatusTitle": "Calibration Status Summary",
+      "settings": {
+        "title": "Settings",
+        "dueSoonDays": "Alert for calibration due in:",
+        "days": "days"
+      },
       "status": {
-        "ok": "Calibrated",
-        "dueSoon": "Due Soon (30d)",
+        "calibrated": "Calibrated",
+        "pendingShipment": "Pending Shipment",
         "overdue": "Overdue",
         "inCalibration": "In Calibration",
         "damaged": "Damaged",
@@ -222,6 +228,8 @@
       "location": "Location",
       "calibrationInterval": "Calibration Interval (Months)",
       "lastCalibrationDate": "Last Calibration Date",
+      "checklistTemplate": "Checklist Template",
+      "noChecklist": "No Checklist",
       "cancel": "Cancel",
       "save": "Save"
     },
@@ -259,6 +267,10 @@
     "photosModalTitle": "Maintenance Photos",
     "modalAddTitle": "Create New Service Order",
     "modalEditTitle": "Edit Service Order",
+    "tabs": {
+      "orders": "Service Orders",
+      "failureModes": "Failure Modes"
+    },
     "form": {
       "equipment": "Equipment",
       "selectEquipment": "Select Equipment",
@@ -303,11 +315,13 @@
     }
   },
   "checklists": {
-    "title": "Checklist Templates",
+    "title": "Equipment Checklist Templates",
+    "metrologyTitle": "Metrology Checklist Templates",
     "add": "New Template",
     "edit": "Edit",
     "delete": "Delete",
     "deleteConfirm": "Are you sure you want to delete the template \"{name}\"? This action cannot be undone.",
+    "deleteInUseConfirm": "This template cannot be deleted because it is currently assigned to one or more pieces of equipment or instruments.",
     "modalAddTitle": "Create New Checklist Template",
     "modalEditTitle": "Edit Checklist Template",
     "noTemplates": "No checklist templates created yet. Click 'New Template' to start.",
@@ -317,6 +331,10 @@
       "addItem": "Add Item",
       "itemText": "Item Description",
       "itemType": "Response Type",
+      "addPhoto": "Add Photo",
+      "removePhoto": "Remove",
+      "viewExamplePhoto": "View Example Photo",
+      "examplePhotoModalTitle": "Example Photo",
       "cancel": "Cancel",
       "save": "Save Template"
     }
@@ -359,12 +377,18 @@
     "modalAddTitle": "Add New Partner",
     "modalEditTitle": "Edit Partner",
     "noPartners": "No partners found. Click 'Add Partner' to get started.",
+    "tabs": {
+      "partners": "Partners",
+      "categories": "Service Categories",
+      "quotes": "Quotes"
+    },
     "viewTabs": {
       "list": "List View",
       "map": "Map View"
     },
     "map": {
       "filterByType": "Filter by type:",
+      "filterByCategory": "Filter by category:",
       "all": "All",
       "findNearMe": "Find Near Me",
       "searchingLocation": "Searching for your location...",
@@ -386,11 +410,31 @@
     "form": {
       "name": "Partner Name",
       "type": "Partner Type",
+      "serviceCategories": "Service Categories",
+      "selectCategoriesPlaceholder": "Select one or more categories...",
+      "addCategory": "Add Category",
       "contactPerson": "Contact Person",
       "phone": "Phone Number",
       "email": "Email Address",
       "address": "Address",
-      "validateAddress": "Validate Address (opens Google Maps)"
+      "validateAddress": "Validate Address (opens Google Maps)",
+      "notes": "More Information",
+      "notesPlaceholder": "Enter any additional information here..."
+    }
+  },
+  "serviceCategories": {
+    "title": "Service Category Management",
+    "add": "New Category",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete the category \"{name}\"? This action cannot be undone.",
+    "modalAddTitle": "Create New Service Category",
+    "modalEditTitle": "Edit Service Category",
+    "noCategories": "No service categories created yet. Click 'New Category' to start.",
+    "form": {
+      "name": "Category Name",
+      "cancel": "Cancel",
+      "save": "Save Category"
     }
   },
   "quotes": {
@@ -433,6 +477,21 @@
       "requestDate": "Request Date",
       "totalCost": "Total Cost",
       "actions": "Actions"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllAsRead": "Mark all as read",
+    "noNew": "No new notifications",
+    "calibrationDue": "Calibration Due",
+    "calibrationOverdue": "Calibration Overdue",
+    "maintenanceDue": "Preventive Maintenance Due",
+    "recurringFailure": "Recurring Failure Alert",
+    "message": {
+      "calibrationDue": "Instrument {name} ({id}) is due for calibration on {date}.",
+      "calibrationOverdue": "Instrument {name} ({id}) calibration was due on {date}.",
+      "maintenanceDue": "Preventive maintenance for {name} ({id}) is due on {date}.",
+      "recurringFailure": "{name} ({id}) has had {count} failures in the last 3 months."
     }
   },
   "team": {
@@ -488,7 +547,13 @@
       "passwordHelp": "Leave blank to keep the current password.",
       "role": "Role",
       "team": "Team",
-      "permissions": "Permissions",
+      "permissions": "View Permissions",
+      "actionPermissions": "Action Permissions",
+      "actions": {
+        "equipment:create": "Create Equipment",
+        "equipment:edit": "Edit Equipment",
+        "equipment:delete": "Delete Equipment"
+      },
       "cancel": "Cancel",
       "save": "Save User"
     }
@@ -524,8 +589,8 @@
   "enums": {
     "equipmentStatus": {
       "Operational": "Operational",
-      "In Maintenance": "In Maintenance",
-      "Needs Repair": "Needs Repair",
+      "InMaintenance": "In Maintenance",
+      "NeedsRepair": "Needs Repair",
       "Decommissioned": "Decommissioned"
     },
     "equipmentType": {
@@ -566,12 +631,12 @@
       "Annual": "Annual"
     },
     "checklistItemType": {
-        "OK_NOT_OK": "OK / Not OK",
-        "NUMERIC": "Numeric Value"
+        "OK / NOT OK": "OK / Not OK",
+        "Numeric": "Numeric Value"
     },
     "partnerType": {
       "Supplier": "Supplier",
-      "ServiceProvider": "Service Provider"
+      "Service Provider": "Service Provider"
     },
     "quoteStatus": {
       "Draft": "Draft",

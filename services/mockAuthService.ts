@@ -1,4 +1,3 @@
-
 import { User, UserRole } from '../types';
 import { dbService } from './dbService';
 import { DEFAULT_PERMISSIONS } from '../constants/permissions';
@@ -19,13 +18,16 @@ export const mockAuthService = {
         return userToReturn;
     }
     
+    const role = UserRole.Technician;
+    const { views, actions } = DEFAULT_PERMISSIONS[role];
     const newUser: User = { 
       id: `user-${Date.now()}`, 
       name, 
       email, 
       password,
-      role: UserRole.Technician,
-      permissions: DEFAULT_PERMISSIONS[UserRole.Technician],
+      role,
+      permissions: views,
+      actionPermissions: actions,
     };
     await dbService.addUser(newUser);
     

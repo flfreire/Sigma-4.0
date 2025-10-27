@@ -1,13 +1,12 @@
-
 import React, { useState } from 'react';
 import { ChecklistTemplate, ChecklistItem, ChecklistItemType, UserRole } from '../types';
 import { useTranslation } from '../i18n/config';
 import { useAuth } from '../contexts/AuthContext';
 import Modal from './Modal';
-import { PlusIcon, TrashIcon, ClipboardDocumentCheckIcon, XMarkIcon } from './icons';
+import { PlusIcon, TrashIcon, ClipboardDocumentCheckIcon, XMarkIcon, PhotoIcon } from './icons';
 
 interface ChecklistTemplateFormProps {
-    onSubmit: (data: Omit<ChecklistTemplate, 'id'> | ChecklistTemplate) => Promise<void>;
+    onSubmit: (data: Omit<ChecklistTemplate, 'id' | 'type'> | Omit<ChecklistTemplate, 'type'>) => Promise<void>;
     onClose: () => void;
     initialData?: ChecklistTemplate | null;
 }
@@ -20,6 +19,30 @@ const ChecklistTemplateForm: React.FC<ChecklistTemplateFormProps> = ({ onSubmit,
     const handleItemChange = (index: number, field: 'text' | 'type', value: string) => {
         const newItems = [...items];
         newItems[index] = { ...newItems[index], [field]: value };
+        setItems(newItems);
+    };
+
+    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                alert(t('equipment.form.fileSizeError')); return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                const newItems = [...items];
+                newItems[index] = { ...newItems[index], photo: base64String };
+                setItems(newItems);
+            };
+            reader.readAsDataURL(file);
+            e.target.value = "";
+        }
+    };
+    
+    const handleRemovePhoto = (index: number) => {
+        const newItems = [...items];
+        delete newItems[index].photo;
         setItems(newItems);
     };
 
@@ -61,7 +84,7 @@ const ChecklistTemplateForm: React.FC<ChecklistTemplateFormProps> = ({ onSubmit,
                 <h4 className="text-lg font-semibold text-light mb-2">{t('checklists.form.itemsTitle')}</h4>
                 <div className="space-y-3 p-3 bg-primary rounded-md border border-accent">
                     {items.map((item, index) => (
-                        <div key={item.id} className="flex items-start gap-3 p-2 bg-secondary rounded-md">
+                        <div key={item.id} className="flex items-start gap-3 p-3 bg-secondary rounded-md">
                             <span className="font-bold text-highlight pt-2">{index + 1}.</span>
                             <div className="flex-grow space-y-2">
                                 <input
@@ -81,6 +104,23 @@ const ChecklistTemplateForm: React.FC<ChecklistTemplateFormProps> = ({ onSubmit,
                                         <option key={type} value={type}>{t(`enums.checklistItemType.${type}`)}</option>
                                     ))}
                                 </select>
+                                <div className="flex items-center gap-2 pt-2">
+                                    {item.photo ? (
+                                        <div className="flex items-center gap-2">
+                                            <img src={item.photo} alt="Preview" className="h-14 w-14 object-cover rounded-md border-2 border-accent" />
+                                            <button type="button" onClick={() => handleRemovePhoto(index)} className="text-red-500 hover:text-red-400 text-sm font-semibold flex items-center gap-1">
+                                                <TrashIcon className="h-4 w-4" /> {t('checklists.form.removePhoto')}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <label htmlFor={`photo-upload-${item.id}`} className="cursor-pointer text-brand hover:text-blue-400 text-sm font-semibold flex items-center gap-1">
+                                                <PhotoIcon className="h-4 w-4" /> {t('checklists.form.addPhoto')}
+                                            </label>
+                                            <input id={`photo-upload-${item.id}`} type="file" onChange={(e) => handlePhotoUpload(e, index)} className="hidden" accept="image/png, image/jpeg" />
+                                        </>
+                                    )}
+                                </div>
                             </div>
                             <button type="button" onClick={() => handleRemoveItem(item.id)} className="text-red-500 hover:text-red-400 p-2 mt-1">
                                 <XMarkIcon className="h-5 w-5" />
@@ -106,15 +146,18 @@ interface ChecklistTemplatesProps {
     addTemplate: (template: Omit<ChecklistTemplate, 'id'>) => Promise<void>;
     updateTemplate: (template: ChecklistTemplate) => Promise<void>;
     deleteTemplate: (id: string) => Promise<void>;
+    type: 'equipment' | 'metrology';
 }
 
-const ChecklistTemplates: React.FC<ChecklistTemplatesProps> = ({ templates, addTemplate, updateTemplate, deleteTemplate }) => {
+const ChecklistTemplates: React.FC<ChecklistTemplatesProps> = ({ templates, addTemplate, updateTemplate, deleteTemplate, type }) => {
     const { t } = useTranslation();
     const { user } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingTemplate, setEditingTemplate] = useState<ChecklistTemplate | null>(null);
 
     const canManage = user?.role === UserRole.Admin || user?.role === UserRole.Manager;
+
+    const relevantTemplates = templates.filter(t => t.type === type || (type === 'equipment' && !t.type));
 
     const handleOpenModal = (template?: ChecklistTemplate) => {
         if (!canManage) return;
@@ -127,11 +170,11 @@ const ChecklistTemplates: React.FC<ChecklistTemplatesProps> = ({ templates, addT
         setEditingTemplate(null);
     };
 
-    const handleSave = async (data: Omit<ChecklistTemplate, 'id'> | ChecklistTemplate) => {
+    const handleSave = async (data: Omit<ChecklistTemplate, 'id' | 'type'> | Omit<ChecklistTemplate, 'type'>) => {
         if ('id' in data) {
-            await updateTemplate(data);
+            await updateTemplate({ ...(data as ChecklistTemplate), type });
         } else {
-            await addTemplate(data);
+            await addTemplate({ ...(data as Omit<ChecklistTemplate, 'id' | 'type'>), type });
         }
     };
 
@@ -143,12 +186,12 @@ const ChecklistTemplates: React.FC<ChecklistTemplatesProps> = ({ templates, addT
     };
 
     return (
-        <div className="p-6">
+        <>
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-light flex items-center">
-                    <ClipboardDocumentCheckIcon className="h-8 w-8 mr-3 text-brand" />
-                    {t('checklists.title')}
-                </h2>
+                <h3 className="text-xl font-bold text-light flex items-center">
+                    <ClipboardDocumentCheckIcon className="h-6 w-6 mr-3 text-brand" />
+                    {type === 'equipment' ? t('checklists.title') : t('checklists.metrologyTitle')}
+                </h3>
                 {canManage && (
                     <button onClick={() => handleOpenModal()} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
                         <PlusIcon className="h-5 w-5 mr-2" />
@@ -157,14 +200,14 @@ const ChecklistTemplates: React.FC<ChecklistTemplatesProps> = ({ templates, addT
                 )}
             </div>
 
-            {templates.length === 0 ? (
+            {relevantTemplates.length === 0 ? (
                 <div className="text-center py-16 bg-secondary rounded-lg border border-accent">
                     <p className="text-highlight">{t('checklists.noTemplates')}</p>
                 </div>
             ) : (
                 <div className="bg-secondary rounded-lg shadow-md border border-accent overflow-hidden">
                     <ul className="divide-y divide-accent">
-                        {templates.map(template => (
+                        {relevantTemplates.map(template => (
                             <li key={template.id} className="p-4 flex justify-between items-center hover:bg-primary transition-colors">
                                 <div>
                                     <p className="font-semibold text-light text-lg">{template.name}</p>
@@ -191,7 +234,7 @@ const ChecklistTemplates: React.FC<ChecklistTemplatesProps> = ({ templates, addT
                     />
                 </Modal>
             )}
-        </div>
+        </>
     );
 };
 

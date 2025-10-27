@@ -1,5 +1,3 @@
-
-
 import React, { useState, useMemo, useEffect } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
@@ -16,13 +14,12 @@ import UserManagement from './components/UserManagement';
 import Chat from './components/Chat';
 import UserList from './components/UserList';
 import PartnerList from './components/PartnerList';
-import { UserRole, View } from './types';
+import { UserRole, View, Notification } from './types';
 import ChecklistTemplates from './components/ChecklistTemplates';
 import QRScannerModal from './components/QRScannerModal';
 import Analysis from './components/Analysis';
-import FailureModeList from './components/FailureModeList';
-import QuoteList from './components/QuoteList';
 import MetrologyList from './components/MetrologyList';
+import { useNotifications } from './hooks/useNotifications';
 
 const MainApp: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>('dashboard');
@@ -32,6 +29,13 @@ const MainApp: React.FC = () => {
   const { t } = useTranslation();
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [equipmentToFocus, setEquipmentToFocus] = useState<string | null>(null);
+  const [instrumentToFocus, setInstrumentToFocus] = useState<string | null>(null);
+
+  const notificationData = useNotifications({
+    equipment: data.equipment,
+    serviceOrders: data.serviceOrders,
+    instruments: data.measurementInstruments,
+  });
 
   useEffect(() => {
     // On application startup, request the user's location permission to enhance map features.
@@ -86,6 +90,19 @@ const MainApp: React.FC = () => {
       }
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    notificationData.markAsRead(notification.id);
+    if (notification.link) {
+      setCurrentView(notification.link.view);
+      if (notification.link.view === 'equipment') {
+        setEquipmentToFocus(notification.link.focusId);
+      }
+      if (notification.link.view === 'metrology') {
+        setInstrumentToFocus(notification.link.focusId);
+      }
+    }
+  };
+
   const viewTitles: { [key in View]?: string } = {
     dashboard: t('viewTitles.dashboard'),
     equipment: t('viewTitles.equipment'),
@@ -93,14 +110,11 @@ const MainApp: React.FC = () => {
     'service-orders': t('viewTitles.service-orders'),
     assistant: t('viewTitles.assistant'),
     'preventive-maintenance': t('viewTitles.preventive-maintenance'),
-    checklists: t('viewTitles.checklists'),
     partners: t('viewTitles.partners'),
     'user-management': user?.role === UserRole.Admin ? t('viewTitles.user-management') : t('viewTitles.team'),
     chat: t('viewTitles.chat'),
     users: t('viewTitles.users'),
     analysis: t('viewTitles.analysis'),
-    'failure-modes': t('viewTitles.failure-modes'),
-    quotes: t('viewTitles.quotes'),
   };
 
   const renderView = () => {
@@ -135,6 +149,7 @@ const MainApp: React.FC = () => {
                     equipment={data.equipment} 
                     addEquipment={data.addEquipment} 
                     updateEquipment={data.updateEquipment}
+                    deleteEquipment={data.deleteEquipment}
                     replacementParts={data.replacementParts}
                     addReplacementPart={data.addReplacementPart}
                     updateReplacementPart={data.updateReplacementPart}
@@ -142,6 +157,10 @@ const MainApp: React.FC = () => {
                     checklistTemplates={data.checklistTemplates}
                     equipmentToFocus={equipmentToFocus}
                     onFocusDone={() => setEquipmentToFocus(null)}
+                    templates={data.checklistTemplates}
+                    addTemplate={data.addChecklistTemplate}
+                    updateTemplate={data.updateChecklistTemplate}
+                    deleteTemplate={data.deleteChecklistTemplate}
                 />;
       case 'metrology':
         return <MetrologyList
@@ -149,6 +168,13 @@ const MainApp: React.FC = () => {
                   addInstrument={data.addMeasurementInstrument}
                   updateInstrument={data.updateMeasurementInstrument}
                   deleteInstrument={data.deleteMeasurementInstrument}
+                  instrumentToFocus={instrumentToFocus}
+                  onFocusDone={() => setInstrumentToFocus(null)}
+                  checklistTemplates={data.checklistTemplates}
+                  templates={data.checklistTemplates}
+                  addTemplate={data.addChecklistTemplate}
+                  updateTemplate={data.updateChecklistTemplate}
+                  deleteTemplate={data.deleteChecklistTemplate}
                 />;
       case 'service-orders':
         return <ServiceOrderList 
@@ -163,30 +189,19 @@ const MainApp: React.FC = () => {
                   users={data.users}
                   teams={data.teams}
                   failureModes={data.failureModes}
+                  addFailureMode={data.addFailureMode}
+                  updateFailureMode={data.updateFailureMode}
+                  deleteFailureMode={data.deleteFailureMode}
                 />;
       case 'assistant':
         return <div className="p-6"><PredictiveAssistant equipmentList={data.equipment} /></div>;
       case 'preventive-maintenance':
         return <PreventiveMaintenance serviceOrders={data.serviceOrders} equipment={data.equipment} />;
-      case 'checklists':
-        return <ChecklistTemplates
-                    templates={data.checklistTemplates}
-                    addTemplate={data.addChecklistTemplate}
-                    updateTemplate={data.updateChecklistTemplate}
-                    deleteTemplate={data.deleteChecklistTemplate}
-               />;
       case 'analysis':
         return <Analysis 
                   serviceOrders={data.serviceOrders}
                   equipment={data.equipment}
                   failureModes={data.failureModes}
-               />;
-      case 'failure-modes':
-        return <FailureModeList
-                  failureModes={data.failureModes}
-                  addFailureMode={data.addFailureMode}
-                  updateFailureMode={data.updateFailureMode}
-                  deleteFailureMode={data.deleteFailureMode}
                />;
       case 'partners':
         return <PartnerList 
@@ -194,15 +209,15 @@ const MainApp: React.FC = () => {
                   addPartner={data.addPartner}
                   updatePartner={data.updatePartner}
                   deletePartner={data.deletePartner}
-                />;
-      case 'quotes':
-        return <QuoteList
-                    quotes={data.quotes}
-                    partners={data.partners}
-                    currentUser={user}
-                    addQuote={data.addQuote}
-                    updateQuote={data.updateQuote}
-                    deleteQuote={data.deleteQuote}
+                  serviceCategories={data.serviceCategories}
+                  addServiceCategory={data.addServiceCategory}
+                  updateServiceCategory={data.updateServiceCategory}
+                  deleteServiceCategory={data.deleteServiceCategory}
+                  quotes={data.quotes}
+                  currentUser={user}
+                  addQuote={data.addQuote}
+                  updateQuote={data.updateQuote}
+                  deleteQuote={data.deleteQuote}
                 />;
       case 'users':
         return <UserList 
@@ -286,7 +301,14 @@ const MainApp: React.FC = () => {
         </div>
 
         <div className="flex-1 flex flex-col overflow-hidden">
-            <Header title={viewTitles[currentView] || 'SIGMA 4.0'} onMobileMenuToggle={() => setIsMobileMenuOpen(true)} />
+            <Header
+                title={viewTitles[currentView] || 'SIGMA 4.0'}
+                onMobileMenuToggle={() => setIsMobileMenuOpen(true)}
+                notifications={notificationData.notifications}
+                unreadCount={notificationData.unreadCount}
+                onNotificationClick={handleNotificationClick}
+                onMarkAllAsRead={notificationData.markAllAsRead}
+            />
             <main className="flex-1 overflow-x-hidden overflow-y-auto">
                 {renderView()}
             </main>

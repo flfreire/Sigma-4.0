@@ -6,6 +6,7 @@ import { PlusIcon, PhotoIcon, XMarkIcon } from './icons';
 import { useTranslation } from '../i18n/config';
 import ChecklistExecutionModal from './ChecklistExecutionModal';
 import { useAuth } from '../contexts/AuthContext';
+import FailureModeList from './FailureModeList';
 
 interface ServiceOrderListProps {
   serviceOrders: ServiceOrder[];
@@ -19,6 +20,9 @@ interface ServiceOrderListProps {
   updateServiceOrder: (order: ServiceOrder) => Promise<void>;
   addChecklistExecution: (execution: Omit<ChecklistExecution, 'id'>, serviceOrder: ServiceOrder) => Promise<void>;
   getChecklistExecutionById: (id: string) => ChecklistExecution | undefined;
+  addFailureMode: (mode: Omit<FailureMode, 'id'>) => Promise<void>;
+  updateFailureMode: (mode: FailureMode) => Promise<void>;
+  deleteFailureMode: (id: string) => Promise<void>;
 }
 
 const statusColorMap: { [key in ServiceOrderStatus]: string } = {
@@ -78,9 +82,13 @@ const ServiceOrderForm: React.FC<{
 
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            // FIX: Use a for...of loop to correctly iterate over the FileList.
-            // The 'for...in' loop iterates over keys, causing runtime errors.
-            for (const file of e.target.files) {
+            // FIX: Replaced for...of loop with a traditional for loop to iterate over the FileList.
+            // This resolves a type inference issue where 'file' was being typed as 'unknown', causing errors.
+            for (let i = 0; i < e.target.files.length; i++) {
+                const file = e.target.files.item(i);
+                if (!file) {
+                    continue;
+                }
                 if (file.size > 2 * 1024 * 1024) { // 2MB limit
                     alert(`File ${file.name} is too large. Please select an image under 2MB.`);
                     continue;
@@ -221,7 +229,7 @@ const ServiceOrderForm: React.FC<{
     )
 }
 
-const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equipment, addServiceOrder, updateServiceOrder, checklistTemplates, addChecklistExecution, getChecklistExecutionById, users, teams, failureModes }) => {
+const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equipment, addServiceOrder, updateServiceOrder, checklistTemplates, addChecklistExecution, getChecklistExecutionById, users, teams, failureModes, addFailureMode, updateFailureMode, deleteFailureMode }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isChecklistModalOpen, setIsChecklistModalOpen] = useState(false);
     const [detailsModalOrder, setDetailsModalOrder] = useState<ServiceOrder | null>(null);
@@ -230,6 +238,7 @@ const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equi
     const { t, language } = useTranslation();
     const { user } = useAuth();
 
+    const [activeView, setActiveView] = useState<'orders' | 'failureModes'>('orders');
     const [activeTab, setActiveTab] = useState<MaintenanceType | 'All'>('All');
 
     const [filters, setFilters] = useState({
@@ -301,142 +310,181 @@ const ServiceOrderList: React.FC<ServiceOrderListProps> = ({ serviceOrders, equi
         }
     };
     
-    const TABS: (MaintenanceType | 'All')[] = ['All', MaintenanceType.Preventive, MaintenanceType.Corrective, MaintenanceType.Predictive, MaintenanceType.Rehabilitation];
+    const TABS_VIEWS = [
+        { key: 'orders', label: t('serviceOrders.tabs.orders') },
+        { key: 'failureModes', label: t('serviceOrders.tabs.failureModes') },
+    ];
+    
+    const FILTER_TABS: (MaintenanceType | 'All')[] = ['All', MaintenanceType.Preventive, MaintenanceType.Corrective, MaintenanceType.Predictive, MaintenanceType.Rehabilitation];
     
     return (
         <div className="p-6">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-light">{t('serviceOrders.title')}</h2>
-                <button onClick={() => handleOpenModal()} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
-                    <PlusIcon className="h-5 w-5 mr-2" />
-                    {t('serviceOrders.create')}
-                </button>
+                {activeView === 'orders' && (
+                    <button onClick={() => handleOpenModal()} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
+                        <PlusIcon className="h-5 w-5 mr-2" />
+                        {t('serviceOrders.create')}
+                    </button>
+                )}
             </div>
-            
+
             <div className="border-b border-accent mb-6">
-                <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
-                    {TABS.map(tab => (
+                <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+                    {TABS_VIEWS.map(tab => (
                         <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
+                            key={tab.key}
+                            onClick={() => setActiveView(tab.key as 'orders' | 'failureModes')}
                             className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
-                                activeTab === tab
+                                activeView === tab.key
                                     ? 'border-brand text-brand'
                                     : 'border-transparent text-highlight hover:text-light hover:border-gray-500'
                             }`}
                         >
-                            {tab === 'All' ? t('serviceOrders.filters.all') : t(`enums.maintenanceType.${tab}`)}
+                            {tab.label}
                         </button>
                     ))}
                 </nav>
             </div>
             
-            <div className="bg-secondary p-4 rounded-lg shadow-md border border-accent mb-6">
-                <h3 className="text-lg font-bold text-light mb-4">{t('serviceOrders.filters.title')}</h3>
-                <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-highlight" htmlFor="searchTerm">{t('serviceOrders.filters.searchTermPlaceholder')}</label>
-                            <input
-                                type="text"
-                                id="searchTerm"
-                                name="searchTerm"
-                                value={filters.searchTerm}
-                                onChange={handleFilterChange}
-                                placeholder={t('serviceOrders.filters.searchTermPlaceholder')}
-                                className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-highlight" htmlFor="status-filter">{t('serviceOrders.filters.status')}</label>
-                            <select id="status-filter" name="status" value={filters.status} onChange={handleFilterChange} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2">
-                                <option value="">{t('serviceOrders.filters.all')}</option>
-                                {Object.values(ServiceOrderStatus).map(s => <option key={s} value={s}>{t(`enums.serviceOrderStatus.${s}`)}</option>)}
-                            </select>
+            {activeView === 'orders' && (
+                <>
+                    <div className="border-b border-accent mb-6">
+                        <nav className="-mb-px flex space-x-6 overflow-x-auto" aria-label="Tabs">
+                            {FILTER_TABS.map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                                        activeTab === tab
+                                            ? 'border-brand text-brand'
+                                            : 'border-transparent text-highlight hover:text-light hover:border-gray-500'
+                                    }`}
+                                >
+                                    {tab === 'All' ? t('serviceOrders.filters.all') : t(`enums.maintenanceType.${tab}`)}
+                                </button>
+                            ))}
+                        </nav>
+                    </div>
+                    
+                    <div className="bg-secondary p-4 rounded-lg shadow-md border border-accent mb-6">
+                        <h3 className="text-lg font-bold text-light mb-4">{t('serviceOrders.filters.title')}</h3>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-highlight" htmlFor="searchTerm">{t('serviceOrders.filters.searchTermPlaceholder')}</label>
+                                    <input
+                                        type="text"
+                                        id="searchTerm"
+                                        name="searchTerm"
+                                        value={filters.searchTerm}
+                                        onChange={handleFilterChange}
+                                        placeholder={t('serviceOrders.filters.searchTermPlaceholder')}
+                                        className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-highlight" htmlFor="status-filter">{t('serviceOrders.filters.status')}</label>
+                                    <select id="status-filter" name="status" value={filters.status} onChange={handleFilterChange} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2">
+                                        <option value="">{t('serviceOrders.filters.all')}</option>
+                                        {Object.values(ServiceOrderStatus).map(s => <option key={s} value={s}>{t(`enums.serviceOrderStatus.${s}`)}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                <div>
+                                    <label className="block text-sm font-medium text-highlight" htmlFor="startDate">{t('serviceOrders.filters.startDate')}</label>
+                                    <input type="date" name="startDate" id="startDate" value={filters.startDate} onChange={handleFilterChange} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2"/>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-highlight" htmlFor="endDate">{t('serviceOrders.filters.endDate')}</label>
+                                    <input type="date" name="endDate" id="endDate" value={filters.endDate} onChange={handleFilterChange} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2"/>
+                                </div>
+                                <div>
+                                    <button onClick={clearFilters} className="w-full bg-accent text-light py-2 px-4 rounded-md hover:bg-highlight transition-colors">
+                                        {t('serviceOrders.filters.clear')}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        <div>
-                            <label className="block text-sm font-medium text-highlight" htmlFor="startDate">{t('serviceOrders.filters.startDate')}</label>
-                            <input type="date" name="startDate" id="startDate" value={filters.startDate} onChange={handleFilterChange} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2"/>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-highlight" htmlFor="endDate">{t('serviceOrders.filters.endDate')}</label>
-                            <input type="date" name="endDate" id="endDate" value={filters.endDate} onChange={handleFilterChange} className="mt-1 block w-full bg-primary border-accent rounded-md shadow-sm p-2"/>
-                        </div>
-                        <div>
-                            <button onClick={clearFilters} className="w-full bg-accent text-light py-2 px-4 rounded-md hover:bg-highlight transition-colors">
-                                {t('serviceOrders.filters.clear')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div className="bg-secondary rounded-lg shadow-md border border-accent overflow-x-auto">
-                <table className="min-w-full divide-y divide-accent">
-                    <thead className="bg-primary">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.orderId')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.equipment')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.type')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.status')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.openedDate')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.closedDate')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.duration')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.cost')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.actions')}</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-secondary divide-y divide-accent">
-                        {filteredServiceOrders.length > 0 ? (
-                            filteredServiceOrders.map(order => {
-                                const equipmentForOrder = equipment.find(e => e.id === order.equipmentId);
-                                const canHaveChecklist = order.type === MaintenanceType.Preventive && equipmentForOrder?.checklistTemplateId;
-                                const isChecklistDone = !!order.checklistExecutionId;
-
-                                return (
-                                <tr key={order.id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-light">{order.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-light">{getEquipmentName(order.equipmentId)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{t(`enums.maintenanceType.${order.type}`)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white ${statusColorMap[order.status]}`}>
-                                            {t(`enums.serviceOrderStatus.${order.status}`)}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.openedDate ? new Date(order.openedDate).toLocaleString(language, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.closedDate ? new Date(order.closedDate).toLocaleString(language, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.maintenanceDuration ? order.maintenanceDuration.toFixed(1) : '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">
-                                        {order.rehabilitationCost ? order.rehabilitationCost.toLocaleString(language, { style: 'currency', currency: language === 'pt' ? 'BRL' : 'USD' }) : '-'}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                        {[MaintenanceType.Corrective, MaintenanceType.Preventive, MaintenanceType.Rehabilitation].includes(order.type) && order.photos && order.photos.length > 0 && (
-                                            <button onClick={() => setDetailsModalOrder(order)} className="text-highlight hover:text-light" title={t('serviceOrders.form.photos')}>
-                                                <PhotoIcon className="h-5 w-5"/>
-                                            </button>
-                                        )}
-                                        <button onClick={() => handleOpenModal(order)} className="text-brand hover:text-blue-400">{t('serviceOrders.edit')}</button>
-                                        {canHaveChecklist && !isChecklistDone && (
-                                            <button onClick={() => handleOpenChecklistModal(order, false)} className="text-yellow-400 hover:text-yellow-300">{t('serviceOrders.fillChecklist')}</button>
-                                        )}
-                                        {isChecklistDone && (
-                                            <button onClick={() => handleOpenChecklistModal(order, true)} className="text-green-400 hover:text-green-300">{t('serviceOrders.viewChecklist')}</button>
-                                        )}
-                                    </td>
+                    <div className="bg-secondary rounded-lg shadow-md border border-accent overflow-x-auto">
+                        <table className="min-w-full divide-y divide-accent">
+                            <thead className="bg-primary">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.orderId')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.equipment')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.type')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.status')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.openedDate')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.closedDate')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.duration')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.cost')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-highlight uppercase tracking-wider">{t('serviceOrders.headers.actions')}</th>
                                 </tr>
-                            )})
-                        ) : (
-                            <tr>
-                                <td colSpan={9} className="px-6 py-8 text-center text-highlight">
-                                    {t('serviceOrders.filters.noResults')}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                            </thead>
+                            <tbody className="bg-secondary divide-y divide-accent">
+                                {filteredServiceOrders.length > 0 ? (
+                                    filteredServiceOrders.map(order => {
+                                        const equipmentForOrder = equipment.find(e => e.id === order.equipmentId);
+                                        const canHaveChecklist = order.type === MaintenanceType.Preventive && equipmentForOrder?.checklistTemplateId;
+                                        const isChecklistDone = !!order.checklistExecutionId;
+
+                                        return (
+                                        <tr key={order.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-light">{order.id}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-light">{getEquipmentName(order.equipmentId)}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{t(`enums.maintenanceType.${order.type}`)}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white ${statusColorMap[order.status]}`}>
+                                                    {t(`enums.serviceOrderStatus.${order.status}`)}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.openedDate ? new Date(order.openedDate).toLocaleString(language, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.closedDate ? new Date(order.closedDate).toLocaleString(language, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">{order.maintenanceDuration ? order.maintenanceDuration.toFixed(1) : '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-highlight">
+                                                {order.rehabilitationCost ? order.rehabilitationCost.toLocaleString(language, { style: 'currency', currency: language === 'pt' ? 'BRL' : 'USD' }) : '-'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                {[MaintenanceType.Corrective, MaintenanceType.Preventive, MaintenanceType.Rehabilitation].includes(order.type) && order.photos && order.photos.length > 0 && (
+                                                    <button onClick={() => setDetailsModalOrder(order)} className="text-highlight hover:text-light" title={t('serviceOrders.form.photos')}>
+                                                        <PhotoIcon className="h-5 w-5"/>
+                                                    </button>
+                                                )}
+                                                <button onClick={() => handleOpenModal(order)} className="text-brand hover:text-blue-400">{t('serviceOrders.edit')}</button>
+                                                {canHaveChecklist && !isChecklistDone && (
+                                                    <button onClick={() => handleOpenChecklistModal(order, false)} className="text-yellow-400 hover:text-yellow-300">{t('serviceOrders.fillChecklist')}</button>
+                                                )}
+                                                {isChecklistDone && (
+                                                    <button onClick={() => handleOpenChecklistModal(order, true)} className="text-green-400 hover:text-green-300">{t('serviceOrders.viewChecklist')}</button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    )})
+                                ) : (
+                                    <tr>
+                                        <td colSpan={9} className="px-6 py-8 text-center text-highlight">
+                                            {t('serviceOrders.filters.noResults')}
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </>
+            )}
+
+            {activeView === 'failureModes' && (
+                <FailureModeList 
+                    failureModes={failureModes}
+                    addFailureMode={addFailureMode}
+                    updateFailureMode={updateFailureMode}
+                    deleteFailureMode={deleteFailureMode}
+                />
+            )}
+
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingOrder ? t('serviceOrders.modalEditTitle') : t('serviceOrders.modalAddTitle')}>
                 <ServiceOrderForm onSubmit={handleSave} onClose={handleCloseModal} initialData={editingOrder} equipment={equipment} teams={teams} failureModes={failureModes} />
             </Modal>

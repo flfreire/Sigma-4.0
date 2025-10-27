@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Team, UserRole, View } from '../types';
+import { User, Team, UserRole, View, ActionPermission } from '../types';
 import { useTranslation } from '../i18n/config';
 import Modal from './Modal';
-import { ALL_VIEWS, DEFAULT_PERMISSIONS } from '../constants/permissions';
+import { ALL_VIEWS, ALL_ACTIONS, DEFAULT_PERMISSIONS } from '../constants/permissions';
 
 interface UserFormModalProps {
     isOpen: boolean;
@@ -21,7 +21,8 @@ const UserFormModal: React.FC<UserFormModalProps> = ({ isOpen, onClose, onSubmit
         password: '',
         role: UserRole.Technician,
         teamId: '',
-        permissions: DEFAULT_PERMISSIONS[UserRole.Technician],
+        permissions: DEFAULT_PERMISSIONS[UserRole.Technician].views,
+        actionPermissions: DEFAULT_PERMISSIONS[UserRole.Technician].actions,
     });
 
     useEffect(() => {
@@ -30,21 +31,26 @@ const UserFormModal: React.FC<UserFormModalProps> = ({ isOpen, onClose, onSubmit
                 ...initialUser,
                 password: '', // Don't show existing password
                 teamId: initialUser.teamId || '',
+                actionPermissions: initialUser.actionPermissions || [],
             });
         } else {
+             const { views, actions } = DEFAULT_PERMISSIONS[UserRole.Technician];
             setFormData({
                 name: '', email: '', password: '', role: UserRole.Technician, teamId: '',
-                permissions: DEFAULT_PERMISSIONS[UserRole.Technician]
+                permissions: views,
+                actionPermissions: actions,
             });
         }
     }, [initialUser, isEditMode, isOpen]);
 
     const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newRole = e.target.value as UserRole;
+        const { views, actions } = DEFAULT_PERMISSIONS[newRole];
         setFormData((prev: any) => ({
             ...prev,
             role: newRole,
-            permissions: DEFAULT_PERMISSIONS[newRole]
+            permissions: views,
+            actionPermissions: actions,
         }));
     };
 
@@ -54,6 +60,15 @@ const UserFormModal: React.FC<UserFormModalProps> = ({ isOpen, onClose, onSubmit
                 ? prev.permissions.filter((p: View) => p !== view)
                 : [...prev.permissions, view];
             return { ...prev, permissions: newPermissions };
+        });
+    };
+
+    const handleActionPermissionChange = (action: ActionPermission) => {
+        setFormData((prev: any) => {
+            const newActionPermissions = prev.actionPermissions.includes(action)
+                ? prev.actionPermissions.filter((p: ActionPermission) => p !== action)
+                : [...prev.actionPermissions, action];
+            return { ...prev, actionPermissions: newActionPermissions };
         });
     };
     
@@ -122,6 +137,22 @@ const UserFormModal: React.FC<UserFormModalProps> = ({ isOpen, onClose, onSubmit
                                     className="rounded bg-primary border-accent text-brand focus:ring-brand"
                                 />
                                 <span>{t(`sidebar.${view}`)}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+                 <div>
+                    <label className="block text-sm font-medium text-highlight mb-2">{t('userManagement.form.actionPermissions')}</label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 bg-primary rounded-md border border-accent">
+                        {ALL_ACTIONS.map(action => (
+                            <label key={action} className="flex items-center space-x-2 text-sm text-light cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.actionPermissions.includes(action)}
+                                    onChange={() => handleActionPermissionChange(action)}
+                                    className="rounded bg-primary border-accent text-brand focus:ring-brand"
+                                />
+                                <span>{t(`userManagement.form.actions.${action}`)}</span>
                             </label>
                         ))}
                     </div>

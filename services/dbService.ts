@@ -1,9 +1,9 @@
 
 
-import { Equipment, ServiceOrder, User, Team, ChatMessage, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution, FailureMode, Quote, MeasurementInstrument } from '../types';
+import { Equipment, ServiceOrder, User, Team, ChatMessage, ReplacementPart, Partner, ChecklistTemplate, ChecklistExecution, FailureMode, Quote, MeasurementInstrument, ServiceCategory } from '../types';
 
 const DB_NAME = 'Sigma4DB';
-const DB_VERSION = 10; // Incremented version for schema change
+const DB_VERSION = 11; // Incremented version for schema change
 const EQUIPMENT_STORE = 'equipment';
 const ORDERS_STORE = 'serviceOrders';
 const USERS_STORE = 'users';
@@ -16,6 +16,7 @@ const CHECKLIST_EXECUTIONS_STORE = 'checklistExecutions';
 const FAILURE_MODES_STORE = 'failureModes';
 const QUOTES_STORE = 'quotes';
 const METROLOGY_STORE = 'measurementInstruments';
+const SERVICE_CATEGORIES_STORE = 'serviceCategories';
 
 
 let db: IDBDatabase;
@@ -89,6 +90,9 @@ const openDb = (): Promise<IDBDatabase> => {
             if (!dbInstance.objectStoreNames.contains(METROLOGY_STORE)) {
                 dbInstance.createObjectStore(METROLOGY_STORE, { keyPath: 'id' });
             }
+             if (!dbInstance.objectStoreNames.contains(SERVICE_CATEGORIES_STORE)) {
+                dbInstance.createObjectStore(SERVICE_CATEGORIES_STORE, { keyPath: 'id' });
+            }
         };
     });
 };
@@ -155,6 +159,7 @@ export const dbService = {
     getAllEquipment: () => getAll<Equipment>(EQUIPMENT_STORE),
     addEquipment: (item: Equipment) => add<Equipment>(EQUIPMENT_STORE, item),
     updateEquipment: (item: Equipment) => update<Equipment>(EQUIPMENT_STORE, item),
+    deleteEquipment: (id: string) => del(EQUIPMENT_STORE, id),
     
     // Measurement Instruments
     getAllMeasurementInstruments: () => getAll<MeasurementInstrument>(METROLOGY_STORE),
@@ -235,4 +240,10 @@ export const dbService = {
     addQuote: (item: Quote) => add<Quote>(QUOTES_STORE, item),
     updateQuote: (item: Quote) => update<Quote>(QUOTES_STORE, item),
     deleteQuote: (id: string) => del(QUOTES_STORE, id),
+
+    // Service Categories
+    getAllServiceCategories: () => getAll<ServiceCategory>(SERVICE_CATEGORIES_STORE),
+    addServiceCategory: (item: ServiceCategory) => add<ServiceCategory>(SERVICE_CATEGORIES_STORE, item),
+    updateServiceCategory: (item: ServiceCategory) => update<ServiceCategory>(SERVICE_CATEGORIES_STORE, item),
+    deleteServiceCategory: (id: string) => del(SERVICE_CATEGORIES_STORE, id),
 };

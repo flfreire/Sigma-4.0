@@ -1,16 +1,25 @@
 
-import React, { useState, useMemo } from 'react';
-import { MeasurementInstrument, InstrumentStatus } from '../types';
-import { PlusIcon, ScaleIcon, TrashIcon, ChartPieIcon } from './icons';
+
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { MeasurementInstrument, InstrumentStatus, ChecklistTemplate } from '../types';
+import { PlusIcon, ScaleIcon, TrashIcon, ChartPieIcon, ClipboardDocumentCheckIcon } from './icons';
 import { useTranslation } from '../i18n/config';
 import InstrumentDetailModal from './InstrumentDetailModal';
 import MetrologyAnalysis from './MetrologyAnalysis';
+import ChecklistTemplates from './ChecklistTemplates';
 
 interface MetrologyListProps {
   instruments: MeasurementInstrument[];
+  checklistTemplates: ChecklistTemplate[];
   addInstrument: (item: Omit<MeasurementInstrument, 'id'>) => Promise<void>;
   updateInstrument: (item: MeasurementInstrument) => Promise<void>;
   deleteInstrument: (id: string) => Promise<void>;
+  instrumentToFocus?: string | null;
+  onFocusDone?: () => void;
+  templates: ChecklistTemplate[];
+  addTemplate: (template: Omit<ChecklistTemplate, 'id'>) => Promise<void>;
+  updateTemplate: (template: ChecklistTemplate) => Promise<void>;
+  deleteTemplate: (id: string) => Promise<void>;
 }
 
 const statusColorMap: { [key in InstrumentStatus]: string } = {
@@ -20,23 +29,36 @@ const statusColorMap: { [key in InstrumentStatus]: string } = {
   [InstrumentStatus.Retired]: 'bg-gray-600',
 };
 
-type MetrologyView = 'list' | 'analysis';
+type MetrologyView = 'list' | 'analysis' | 'checklists';
 
-const MetrologyList: React.FC<MetrologyListProps> = ({ instruments, addInstrument, updateInstrument, deleteInstrument }) => {
+const MetrologyList: React.FC<MetrologyListProps> = ({ instruments, addInstrument, updateInstrument, deleteInstrument, instrumentToFocus, onFocusDone, checklistTemplates, templates, addTemplate, updateTemplate, deleteTemplate }) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedInstrument, setSelectedInstrument] = useState<MeasurementInstrument | null>(null);
   const [activeTab, setActiveTab] = useState<MetrologyView>('list');
   const { t } = useTranslation();
 
-  const handleOpenDetailModal = (item?: MeasurementInstrument) => {
+  const handleOpenDetailModal = useCallback((item?: MeasurementInstrument) => {
     setSelectedInstrument(item || null);
     setIsDetailModalOpen(true);
-  };
+  }, []);
   
   const handleCloseDetailModal = () => {
     setIsDetailModalOpen(false);
     setSelectedInstrument(null);
   };
+
+  useEffect(() => {
+    if (instrumentToFocus && instruments.length > 0 && onFocusDone) {
+      setActiveTab('list');
+      const itemToFocus = instruments.find(e => e.id === instrumentToFocus);
+      if (itemToFocus) {
+        handleOpenDetailModal(itemToFocus);
+      } else {
+        alert(t('scanner.error.notFound')); // Reusing scanner error for generic not found
+      }
+      onFocusDone();
+    }
+  }, [instrumentToFocus, instruments, onFocusDone, handleOpenDetailModal, t]);
 
   const handleDelete = (instrument: MeasurementInstrument) => {
     if (window.confirm(t('metrology.deleteConfirm', { name: instrument.name, id: instrument.id }))) {
@@ -60,6 +82,7 @@ const MetrologyList: React.FC<MetrologyListProps> = ({ instruments, addInstrumen
   const TABS = [
     { key: 'list', label: t('metrology.tabs.list'), icon: <ScaleIcon className="h-5 w-5 mr-2" /> },
     { key: 'analysis', label: t('metrology.tabs.analysis'), icon: <ChartPieIcon className="h-5 w-5 mr-2" /> },
+    { key: 'checklists', label: t('metrology.tabs.checklists'), icon: <ClipboardDocumentCheckIcon className="h-5 w-5 mr-2" /> },
   ];
 
   return (
@@ -69,10 +92,12 @@ const MetrologyList: React.FC<MetrologyListProps> = ({ instruments, addInstrumen
             <ScaleIcon className="h-8 w-8 mr-3 text-brand" />
             {t('metrology.title')}
         </h2>
-        <button onClick={() => handleOpenDetailModal()} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
-          <PlusIcon className="h-5 w-5 mr-2" />
-          {t('metrology.add')}
-        </button>
+        {activeTab === 'list' && (
+            <button onClick={() => handleOpenDetailModal()} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 flex items-center">
+            <PlusIcon className="h-5 w-5 mr-2" />
+            {t('metrology.add')}
+            </button>
+        )}
       </div>
 
        <div className="border-b border-accent mb-6">
@@ -93,7 +118,7 @@ const MetrologyList: React.FC<MetrologyListProps> = ({ instruments, addInstrumen
         </nav>
       </div>
 
-      {activeTab === 'list' ? (
+      {activeTab === 'list' && (
         <div className="bg-secondary rounded-lg shadow-md border border-accent overflow-x-auto">
             <table className="min-w-full divide-y divide-accent">
             <thead className="bg-primary">
@@ -137,8 +162,20 @@ const MetrologyList: React.FC<MetrologyListProps> = ({ instruments, addInstrumen
             </tbody>
             </table>
         </div>
-      ) : (
+      )}
+      
+      {activeTab === 'analysis' && (
           <MetrologyAnalysis instruments={instruments} />
+      )}
+
+      {activeTab === 'checklists' && (
+          <ChecklistTemplates
+            templates={templates}
+            addTemplate={addTemplate}
+            updateTemplate={updateTemplate}
+            deleteTemplate={deleteTemplate}
+            type="metrology"
+          />
       )}
       
       {isDetailModalOpen && (
@@ -148,6 +185,7 @@ const MetrologyList: React.FC<MetrologyListProps> = ({ instruments, addInstrumen
           instrument={selectedInstrument}
           addInstrument={addInstrument}
           updateInstrument={updateInstrument}
+          checklistTemplates={checklistTemplates}
         />
       )}
     </div>

@@ -1,18 +1,21 @@
 
+
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import L from 'leaflet';
-import { Partner, PartnerType } from '../types';
+import { Partner, PartnerType, ServiceCategory } from '../types';
 import { useTranslation } from '../i18n/config';
 
 interface PartnerMapProps {
     partners: Partner[];
+    serviceCategories: ServiceCategory[];
 }
 
-const PartnerMap: React.FC<PartnerMapProps> = ({ partners }) => {
+const PartnerMap: React.FC<PartnerMapProps> = ({ partners, serviceCategories }) => {
     const { t } = useTranslation();
     const mapRef = useRef<L.Map | null>(null);
     const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
-    const [filter, setFilter] = useState<PartnerType | 'All'>('All');
+    const [typeFilter, setTypeFilter] = useState<PartnerType | 'All'>('All');
+    const [categoryFilter, setCategoryFilter] = useState<string>('All');
     const [nearbyPartners, setNearbyPartners] = useState<(Partner & { distance: number })[]>([]);
     const [isLoadingLocation, setIsLoadingLocation] = useState(false);
     const [clickSearchActive, setClickSearchActive] = useState(true);
@@ -74,14 +77,18 @@ const PartnerMap: React.FC<PartnerMapProps> = ({ partners }) => {
         if (!map) return;
 
         markersRef.current.clearLayers();
-        const filteredPartners = partnersWithCoords.filter(p => filter === 'All' || p.type === filter);
+        const filteredPartners = partnersWithCoords.filter(p => {
+            const typeMatch = typeFilter === 'All' || p.type === typeFilter;
+            const categoryMatch = categoryFilter === 'All' || (p.serviceCategoryIds || []).includes(categoryFilter);
+            return typeMatch && categoryMatch;
+        });
         
         filteredPartners.forEach(partner => {
             const marker = L.marker([partner.latitude!, partner.longitude!]);
             marker.bindPopup(`<b>${partner.name}</b><br>${t(`enums.partnerType.${partner.type}`)}<br>${partner.contactPerson}`);
             markersRef.current.addLayer(marker);
         });
-    }, [partnersWithCoords, filter, t]);
+    }, [partnersWithCoords, typeFilter, categoryFilter, t]);
 
     const handleFindNearMe = () => {
         setIsLoadingLocation(true);
@@ -107,13 +114,24 @@ const PartnerMap: React.FC<PartnerMapProps> = ({ partners }) => {
     return (
         <div className="space-y-4">
              <div className="bg-secondary p-4 rounded-lg shadow-md border border-accent flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                    <label className="font-semibold text-highlight">{t('partners.map.filterByType')}</label>
-                    <select value={filter} onChange={e => setFilter(e.target.value as any)} className="bg-primary border-accent rounded-md p-2 text-light focus:ring-brand focus:border-brand">
-                        <option value="All">{t('partners.map.all')}</option>
-                        <option value={PartnerType.Supplier}>{t(`enums.partnerType.${PartnerType.Supplier}`)}</option>
-                        <option value={PartnerType.ServiceProvider}>{t(`enums.partnerType.${PartnerType.ServiceProvider}`)}</option>
-                    </select>
+                <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2">
+                        <label className="font-semibold text-highlight text-sm">{t('partners.map.filterByType')}</label>
+                        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value as any)} className="bg-primary border-accent rounded-md p-2 text-light focus:ring-brand focus:border-brand">
+                            <option value="All">{t('partners.map.all')}</option>
+                            <option value={PartnerType.Supplier}>{t(`enums.partnerType.${PartnerType.Supplier}`)}</option>
+                            <option value={PartnerType.ServiceProvider}>{t(`enums.partnerType.${PartnerType.ServiceProvider}`)}</option>
+                        </select>
+                    </div>
+                     <div className="flex items-center gap-2">
+                        <label className="font-semibold text-highlight text-sm">{t('partners.map.filterByCategory')}</label>
+                        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="bg-primary border-accent rounded-md p-2 text-light focus:ring-brand focus:border-brand">
+                            <option value="All">{t('partners.map.all')}</option>
+                            {serviceCategories.map(cat => (
+                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
                 <button onClick={handleFindNearMe} disabled={isLoadingLocation} className="bg-brand text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 disabled:bg-gray-500 flex justify-center items-center transition-colors">
                     {isLoadingLocation ? (

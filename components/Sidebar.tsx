@@ -1,7 +1,7 @@
 
 
 import React from 'react';
-import { DashboardIcon, WrenchScrewdriverIcon, ClipboardListIcon, SparklesIcon, XMarkIcon, CalendarDaysIcon, UsersIcon, ChatBubbleLeftRightIcon, UserGroupIcon, TruckIcon, ClipboardDocumentCheckIcon, QrCodeIcon, ChartPieIcon, ExclamationTriangleIcon, CurrencyDollarIcon, ScaleIcon } from './icons';
+import { DashboardIcon, WrenchScrewdriverIcon, ClipboardListIcon, SparklesIcon, XMarkIcon, CalendarDaysIcon, UsersIcon, ChatBubbleLeftRightIcon, UserGroupIcon, TruckIcon, ClipboardDocumentCheckIcon, QrCodeIcon, ChartPieIcon, ExclamationTriangleIcon, CurrencyDollarIcon, ScaleIcon, BuildingStorefrontIcon } from './icons';
 import { useTranslation } from '../i18n/config';
 import { Team, User, View } from '../types';
 
@@ -46,11 +46,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate, onClose, cur
       { view: 'metrology', label: t('sidebar.metrology'), icon: <ScaleIcon className="h-6 w-6" />, requiredPermission: 'metrology' },
       { view: 'service-orders', label: t('sidebar.service-orders'), icon: <ClipboardListIcon className="h-6 w-6" />, requiredPermission: 'service-orders' },
       { view: 'preventive-maintenance', label: t('sidebar.preventive-maintenance'), icon: <CalendarDaysIcon className="h-6 w-6" />, requiredPermission: 'preventive-maintenance' },
-      { view: 'checklists', label: t('sidebar.checklists'), icon: <ClipboardDocumentCheckIcon className="h-6 w-6" />, requiredPermission: 'checklists'},
       { view: 'analysis', label: t('sidebar.analysis'), icon: <ChartPieIcon className="h-6 w-6" />, requiredPermission: 'analysis' },
-      { view: 'failure-modes', label: t('sidebar.failure-modes'), icon: <ExclamationTriangleIcon className="h-6 w-6" />, requiredPermission: 'failure-modes' },
       { view: 'partners', label: t('sidebar.partners'), icon: <TruckIcon className="h-6 w-6" />, requiredPermission: 'partners' },
-      { view: 'quotes', label: t('sidebar.quotes'), icon: <CurrencyDollarIcon className="h-6 w-6" />, requiredPermission: 'quotes' },
       { view: 'users', label: t('sidebar.users'), icon: <UsersIcon className="h-6 w-6" />, requiredPermission: 'users' },
   ];
 

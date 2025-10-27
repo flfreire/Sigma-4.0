@@ -1,14 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, UserRole } from '../types';
+import { User, UserRole, ActionPermission } from '../types';
 import { mockAuthService } from '../services/mockAuthService';
 import { dbService } from '../services/dbService';
-import { ALL_VIEWS } from '../constants/permissions';
+import { ALL_VIEWS, ALL_ACTIONS } from '../constants/permissions';
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (name: string, email: string, password: string) => Promise<void>;
+  hasActionPermission: (action: ActionPermission) => boolean;
   isLoading: boolean;
   error: string | null;
   clearError: () => void;
@@ -35,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 password: 'admin123',
                 role: UserRole.Admin,
                 permissions: ALL_VIEWS,
+                actionPermissions: ALL_ACTIONS,
             });
         }
         
@@ -86,12 +88,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     sessionStorage.removeItem('sigma-user');
   };
+
+  const hasActionPermission = (action: ActionPermission): boolean => {
+    return user?.actionPermissions?.includes(action) ?? false;
+  };
   
   const clearError = () => {
       setError(null);
   }
 
-  const value = { user, login, logout, register, isLoading, error, clearError };
+  const value = { user, login, logout, register, isLoading, error, clearError, hasActionPermission };
 
   // Render children only when initial session check is complete
   return <AuthContext.Provider value={value}>{!isLoading && children}</AuthContext.Provider>;
